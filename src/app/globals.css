@@ -1,44 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --bg-dark: #050505;
-  --neon-green: #00FF94;
-  --cyan-electric: #00C2FF;
+  --bg-dark: #050507;
+  --bg-surface: #09090d;
+  --neon-green: #00FF85;
+  --cyan-electric: #00F2FF;
+  --amber-warm: #FFB800;
   --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-bg: rgba(255, 255, 255, 0.02);
   --background: var(--bg-dark);
   --foreground: #ffffff;
 }
 
 @theme inline {
   --color-background: var(--bg-dark);
+  --color-surface: var(--bg-surface);
   --color-foreground: var(--foreground);
   --color-primary: var(--neon-green);
   --color-secondary: var(--cyan-electric);
+  --color-accent: var(--amber-warm);
 
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   --animate-float: float 6s ease-in-out infinite;
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
   @keyframes float {
-
     0%,
     100% {
       transform: translateY(0);
     }
-
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-8px);
     }
   }
 }
 
 body {
   background-color: var(--bg-dark);
-  color: white;
-  font-family: 'Inter', sans-serif;
+  color: #ffffff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   overflow-x: hidden;
 }
 
@@ -49,10 +52,19 @@ h4,
 h5,
 h6 {
   font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.04em;
+}
+
+.swiss-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  color: #a1a1aa;
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--neon-green), var(--cyan-electric), #8B5CF6);
+  background: linear-gradient(135deg, var(--neon-green), var(--cyan-electric));
   background-size: 200% 200%;
   animation: gradient-animation 8s ease infinite;
   -webkit-background-clip: text;
@@ -242,53 +254,123 @@ h6 {
   animation: badge-pulse 2.5s ease-in-out infinite;
 }
 
-/* --- NEW PREMIUM ENHANCEMENTS --- */
+/* --- PRECISION GLASSMORPHISM & OBSIDIAN STYLES --- */
 
-.premium-glass {
-  background: rgba(255, 255, 255, 0.01);
+.precision-glass {
+  background: rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
 }
 
-@keyframes orbit {
-  from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
-  to   { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+.precision-glass-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.animate-orbit {
-  animation: orbit 20s linear infinite;
+.precision-glass-hover:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(0, 255, 133, 0.35);
+  box-shadow: 0 20px 50px -10px rgba(0, 255, 133, 0.12);
+  transform: translateY(-2px);
 }
 
-.bento-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: minmax(180px, auto);
-  gap: 1.5rem;
+.obsidian-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.005) 100%), #09090d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85);
 }
 
-@media (max-width: 1024px) {
-  .bento-grid {
-    grid-template-columns: repeat(2, 1fr);
+/* Ambient Radial Halos (Surgical 8-12% opacity) */
+.halo-emerald {
+  background: radial-gradient(circle at center, rgba(0, 255, 133, 0.11) 0%, rgba(0, 255, 133, 0.02) 50%, transparent 70%);
+}
+
+.halo-cyan {
+  background: radial-gradient(circle at center, rgba(0, 242, 255, 0.10) 0%, rgba(0, 242, 255, 0.02) 50%, transparent 70%);
+}
+
+.halo-amber {
+  background: radial-gradient(circle at center, rgba(255, 184, 0, 0.08) 0%, rgba(255, 184, 0, 0.01) 50%, transparent 70%);
+}
+
+/* High-ticket illuminated perimeter button */
+.btn-high-ticket {
+  position: relative;
+  background: #00FF85;
+  color: #000000;
+  font-weight: 800;
+  box-shadow: 0 0 30px rgba(0, 255, 133, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-high-ticket:hover {
+  background: #26ffa0;
+  box-shadow: 0 0 45px rgba(0, 255, 133, 0.6), inset 0 1px 2px rgba(255, 255, 255, 1);
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* High-ticket glass secondary button */
+.btn-glass-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-glass-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+/* Soundwave bars for Voice AI module */
+.sound-bar {
+  width: 3px;
+  background: #00FF85;
+  border-radius: 9999px;
+  animation: soundwave-bar 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes soundwave-bar {
+  0% {
+    height: 4px;
+    opacity: 0.3;
+  }
+  100% {
+    height: 24px;
+    opacity: 1;
   }
 }
 
-@media (max-width: 640px) {
-  .bento-grid {
-    grid-template-columns: 1fr;
+/* Marquee continuous scroll */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
   }
 }
 
-.bento-item-large {
-  grid-column: span 2;
-  grid-row: span 2;
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
 }
 
-.bento-item-wide {
-  grid-column: span 2;
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
-.bento-item-tall {
-  grid-row: span 2;
+.premium-glass {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
 }

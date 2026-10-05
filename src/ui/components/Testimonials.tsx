@@ -27,7 +27,7 @@ const testimonials = [
         content: "Teníamos a una persona dedicada solo a gestionar reservas de grupos. Con la IA, el proceso es autónomo y no hemos tenido ni un solo error en 3 meses.",
         metric: "+15h/sem",
         metricLabel: "Tiempo Ahorrado",
-        icon: <Clock className="text-purple-400" size={20} />
+        icon: <Clock className="text-[#00F2FF]" size={20} />
     }
 ];
 
@@ -65,7 +65,7 @@ export const Testimonials = () => {
                             </div>
 
                             <p className="text-gray-300 mb-8 leading-relaxed italic flex-grow">
-                                "{t.content}"
+                                &ldquo;{t.content}&rdquo;
                             </p>
 
                             <div className="flex items-center gap-4 mb-6">

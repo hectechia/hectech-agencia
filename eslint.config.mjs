@@ -16,6 +16,20 @@ const eslintConfig = defineConfig([
     "final-test-n8n.js",
     "check_leads.ts",
   ]),
+  // Global rule customizations
+  {
+    rules: {
+      // Allow intentionally unused params prefixed with _
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_"
+        }
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;

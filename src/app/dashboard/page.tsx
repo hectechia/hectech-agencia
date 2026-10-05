@@ -12,24 +12,18 @@ import {
     Zap,
     UserCheck,
     Users,
-    ArrowLeft,
     LifeBuoy,
     CheckCircle2,
     AlertCircle,
-    LogOut,
-    Settings,
     MessageSquare,
     Phone,
     Globe,
     Target,
-    TreePalm,
-    Building2,
     Utensils,
     HeartPulse,
     Calendar,
     Users2,
     X,
-    Hotel,
     Bed
 } from 'lucide-react';
 import Link from 'next/link';
@@ -54,7 +48,7 @@ interface DailyMetrics {
     automations_run: number;
     time_saved_minutes: number;
     leads_generated: number;
-    industry_metrics?: Record<string, any>;
+    industry_metrics?: Record<string, unknown>;
 }
 
 interface Lead {
@@ -87,7 +81,8 @@ interface StatCardProps {
 }
 
 const StatCard = ({ title, value, icon: Icon, unit, color }: StatCardProps) => (
-    <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-[#00FF94]/40 transition-all duration-300 group">
+    <div className="premium-glass p-6 rounded-2xl border premium-border hover:border-[#00FF94]/40 transition-all duration-300 group relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
         <div className="flex justify-between items-start mb-4">
             <div className="p-3 rounded-xl bg-white/5" style={{ color: color }}>
                 <Icon size={24} />
@@ -96,9 +91,9 @@ const StatCard = ({ title, value, icon: Icon, unit, color }: StatCardProps) => (
                 <TrendingUp size={20} />
             </div>
         </div>
-        <h3 className="text-gray-400 text-sm font-medium mb-1">{title}</h3>
-        <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-white tracking-tight">{value}</span>
+        <h3 className="text-gray-400 text-sm font-medium mb-1 relative z-10">{title}</h3>
+        <div className="flex items-baseline gap-1 relative z-10">
+            <span className="text-3xl font-bold text-white tracking-tight text-gradient">{value}</span>
             <span className="text-gray-500 text-sm">{unit}</span>
         </div>
     </div>
@@ -109,7 +104,7 @@ interface CumulativeMetrics {
     total_time_saved: number;
     client_name?: string;
     status?: string;
-    industry_metrics?: Record<string, any>;
+    industry_metrics?: Record<string, unknown>;
 }
 
 function DashboardContent() {
@@ -117,6 +112,7 @@ function DashboardContent() {
     const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [isMounted, setIsMounted] = useState(false);
     const [activeTab, setActiveTab] = useState<'metrics' | 'support' | 'leads' | 'chatbot_pisos_turisticos'>('metrics');
     const [metrics, setMetrics] = useState<DailyMetrics[]>([]);
     const [cumulativeMetrics, setCumulativeMetrics] = useState<CumulativeMetrics | null>(null);
@@ -137,6 +133,7 @@ function DashboardContent() {
     const [ticketSuccess, setTicketSuccess] = useState(false);
 
     useEffect(() => {
+        setIsMounted(true);
         async function getData() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) {
@@ -223,6 +220,18 @@ function DashboardContent() {
                 if (!conciergeError && conciergeData) {
                     setConciergeLogs(conciergeData);
                 }
+
+                // Fetch leads for admin view
+                if (profileData?.is_admin) {
+                    const { data: leadsData, error: leadsError } = await supabase
+                        .from('leads')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+
+                    if (!leadsError && leadsData) {
+                        setLeads(leadsData);
+                    }
+                }
             }
 
             // Auto-select Chatbot Pisos Turísticos tab for that industry users (excluding admin)
@@ -233,6 +242,7 @@ function DashboardContent() {
             setLoading(false);
         }
         getData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router]);
 
     const handleLogout = async () => {
@@ -310,11 +320,11 @@ function DashboardContent() {
     const getIndustryMetric = (metrics: DailyMetrics[], key: string, defaultValue: number = 0): number => {
         if (!metrics || metrics.length === 0) return defaultValue;
         const latestMetric = metrics[metrics.length - 1];
-        return latestMetric?.industry_metrics?.[key] ?? defaultValue;
+        return (latestMetric?.industry_metrics?.[key] as number) ?? defaultValue;
     };
 
     const getCumulativeIndustryMetric = (cumulativeMetrics: CumulativeMetrics | null, key: string, defaultValue: number = 0): number => {
-        return cumulativeMetrics?.industry_metrics?.[key] ?? defaultValue;
+        return (cumulativeMetrics?.industry_metrics?.[key] as number) ?? defaultValue;
     };
 
     // Use cumulative metrics if available, otherwise fallback to daily metrics sum
@@ -364,8 +374,15 @@ function DashboardContent() {
     if (!profile) return null;
 
     return (
-        <main className="min-h-screen bg-[#050505] text-white p-4 md:p-8">
-            <div className="max-w-6xl mx-auto space-y-10">
+        <main className="relative min-h-screen bg-[#050505] text-white p-4 md:p-8 overflow-hidden">
+            {/* Elementos de Fondo Premium */}
+            <div className="absolute inset-0 circuit-bg z-0 pointer-events-none opacity-20"></div>
+            <div className="absolute inset-0 noise-bg opacity-10 pointer-events-none"></div>
+
+            <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#00FF94]/10 rounded-full blur-[150px] pointer-events-none animate-pulse"></div>
+            <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-[#00C2FF]/10 rounded-full blur-[180px] pointer-events-none animate-pulse" style={{ animationDelay: '2s' }}></div>
+
+            <div className="max-w-6xl mx-auto space-y-10 relative z-10">
                 {/* Impersonation Banner */}
                 {isImpersonating && (
                     <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 px-4 py-3 rounded-lg flex justify-between items-center text-sm animate-in slide-in-from-top-4">
@@ -464,18 +481,18 @@ function DashboardContent() {
                                 Nuestro equipo está configurando tus agentes de IA. Te notificaremos cuando tu sistema esté 100% operativo.
                             </p>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-                                <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10 opacity-50">
+                                <div className="premium-glass p-6 rounded-2xl border premium-border opacity-50">
                                     <div className="text-[#00FF94] mb-3"><ShieldCheck size={24} /></div>
                                     <h3 className="text-white font-bold mb-1">1. Acuerdo</h3>
                                     <p className="text-xs text-gray-500">Completado</p>
                                 </div>
-                                <div className="glass-card p-6 rounded-2xl bg-[#00FF94]/5 border border-[#00FF94]/30 relative overflow-hidden">
+                                <div className="premium-glass p-6 rounded-2xl border premium-border relative overflow-hidden">
                                     <div className="absolute top-0 left-0 w-1 h-full bg-[#00FF94]"></div>
                                     <div className="text-yellow-500 mb-3"><Activity size={24} className="animate-spin-slow" /></div>
                                     <h3 className="text-white font-bold mb-1">2. Construcción</h3>
                                     <p className="text-xs text-[#00FF94]">En Progreso...</p>
                                 </div>
-                                <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10 opacity-50">
+                                <div className="premium-glass p-6 rounded-2xl border premium-border opacity-50">
                                     <div className="text-gray-500 mb-3"><Zap size={24} /></div>
                                     <h3 className="text-white font-bold mb-1">3. Activación</h3>
                                     <p className="text-xs text-gray-500">Pendiente</p>
@@ -630,7 +647,7 @@ function DashboardContent() {
                             )}
 
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-                                <div className="glass-card p-8 rounded-3xl bg-white/5 border border-white/10 border-l-[#00FF94] border-l-4">
+                                <div className="premium-glass p-8 rounded-3xl border premium-border border-l-[#00FF94] border-l-4">
                                     <h3 className="text-xl font-bold mb-4">Análisis de Valor HecTechAi</h3>
                                     <div className="space-y-6">
                                         <div className="space-y-2">
@@ -660,14 +677,14 @@ function DashboardContent() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="glass-card p-8 rounded-3xl bg-white/5 border border-white/10 border-l-purple-500 border-l-4">
-                                    <h3 className="text-xl font-bold mb-4">Impacto en Facturación</h3>
+                                <div className="premium-glass p-8 rounded-3xl border premium-border border-l-cyan-electric border-l-4">
+                                    <h3 className="text-xl font-bold mb-4 text-gradient">Impacto en Facturación</h3>
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-baseline">
                                             <p className="text-gray-400 text-sm">
                                                 {profile.industry === 'real_estate' ? 'Valor Proyectado de Comisiones' : 'Valor de Oportunidad Detectado'}
                                             </p>
-                                            <p className="text-2xl font-bold text-white">{potentialRevenue}€</p>
+                                            <p className="text-2xl font-bold text-white text-gradient">{potentialRevenue}€</p>
                                         </div>
                                         <p className="text-gray-400 text-xs leading-relaxed">
                                             Basado en los leads cualificados y el ticket medio de tu sector. Tu automatización no solo ahorra costes, detecta ingresos.
@@ -757,29 +774,29 @@ function DashboardContent() {
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {/* ROI Header for Sitges Concierge */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <div className="glass-card p-6 rounded-2xl bg-[#00FF94]/5 border border-[#00FF94]/20">
+                            <div className="premium-glass p-6 rounded-2xl border premium-border border-[#00FF94]/30">
                                 <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Horas de Gestión Ahorradas</p>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-bold text-white">{(conciergeLogs.length * 5 / 60).toFixed(1)}</span>
+                                    <span className="text-2xl font-bold text-white text-gradient">{(conciergeLogs.length * 5 / 60).toFixed(1)}</span>
                                     <span className="text-sm text-[#00FF94]">horas</span>
                                 </div>
                                 <p className="text-[10px] text-gray-500 mt-2">Basado en 5 min/interacción</p>
                             </div>
-                            <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10">
+                            <div className="premium-glass p-6 rounded-2xl border premium-border">
                                 <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Coste Operativo Evitado</p>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-bold text-white">{(conciergeLogs.length * 5 / 60 * 15).toFixed(0)}€</span>
-                                    <span className="text-sm text-purple-400">ahorrados</span>
+                                    <span className="text-2xl font-bold text-white text-gradient">{(conciergeLogs.length * 5 / 60 * 15).toFixed(0)}€</span>
+                                    <span className="text-sm text-[#00F2FF]">ahorrados</span>
                                 </div>
                                 <p className="text-[10px] text-gray-500 mt-2">Cálculo estimado (15€/hora)</p>
                             </div>
-                            <div className="glass-card p-6 rounded-2xl bg-[#00FF94]/5 border border-[#00FF94]/20 relative overflow-hidden">
+                            <div className="premium-glass p-6 rounded-2xl border premium-border border-[#00FF94]/30 relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-2 opacity-10">
                                     <Clock size={48} className="text-[#00FF94]" />
                                 </div>
                                 <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Disponibilidad 24/7</p>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-bold text-[#00FF94]">100%</span>
+                                    <span className="text-2xl font-bold text-[#00FF94] text-gradient">100%</span>
                                     <span className="text-sm text-gray-400">Always ON</span>
                                 </div>
                                 <p className="text-[10px] text-gray-500 mt-2">Sin costes de nocturnidad</p>
@@ -788,50 +805,50 @@ function DashboardContent() {
 
                         {/* Advanced Insights Section */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div className="glass-card p-4 rounded-xl bg-white/5 border border-white/10">
+                            <div className="premium-glass p-4 rounded-xl border premium-border">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-yellow-500/10 rounded-lg"><Zap size={16} className="text-yellow-500" /></div>
                                     <p className="text-gray-400 text-xs font-medium uppercase">Ventas Detectadas</p>
                                 </div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xl font-bold text-white">{upsellRevenue}€</span>
+                                    <span className="text-xl font-bold text-white text-gradient">{upsellRevenue}€</span>
                                     <span className="text-[10px] text-yellow-500">potenciales</span>
                                 </div>
                                 <p className="text-[9px] text-gray-500 mt-1">{potentialUpsells} sugerencias de upselling</p>
                             </div>
 
-                            <div className="glass-card p-4 rounded-xl bg-white/5 border border-white/10">
+                            <div className="premium-glass p-4 rounded-xl border premium-border">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-blue-500/10 rounded-lg"><Globe size={16} className="text-blue-500" /></div>
                                     <p className="text-gray-400 text-xs font-medium uppercase">Conectividad Global</p>
                                 </div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xl font-bold text-white">{detectedLanguages.size}</span>
+                                    <span className="text-xl font-bold text-white text-gradient">{detectedLanguages.size}</span>
                                     <span className="text-[10px] text-blue-500">idiomas</span>
                                 </div>
                                 <p className="text-[9px] text-gray-500 mt-1 truncate">{Array.from(detectedLanguages).join(', ')}</p>
                             </div>
 
-                            <div className="glass-card p-4 rounded-xl bg-white/5 border border-white/10">
+                            <div className="premium-glass p-4 rounded-xl border premium-border">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="p-2 bg-green-500/10 rounded-lg"><CheckCircle2 size={16} className="text-[#00FF94]" /></div>
                                     <p className="text-gray-400 text-xs font-medium uppercase">Resolución Automática</p>
                                 </div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xl font-bold text-white">{resolutionRate}%</span>
+                                    <span className="text-xl font-bold text-white text-gradient">{resolutionRate}%</span>
                                     <span className="text-[10px] text-[#00FF94]">IA pura</span>
                                 </div>
                                 <p className="text-[9px] text-gray-500 mt-1">Sin intervención humana</p>
                             </div>
 
-                            <div className="glass-card p-4 rounded-xl bg-white/5 border border-white/10">
+                            <div className="premium-glass p-4 rounded-xl border premium-border">
                                 <div className="flex items-center gap-3 mb-2">
-                                    <div className="p-2 bg-purple-500/10 rounded-lg"><Moon size={16} className="text-purple-500" /></div>
+                                    <div className="p-2 bg-cyan-electric/10 rounded-lg"><Moon size={16} className="text-cyan-electric" /></div>
                                     <p className="text-gray-400 text-xs font-medium uppercase">Hora de Mayor Pico</p>
                                 </div>
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-xl font-bold text-white">{topHour}:00h</span>
-                                    <span className="text-[10px] text-purple-500">atención crítica</span>
+                                    <span className="text-xl font-bold text-white text-gradient">{topHour}:00h</span>
+                                    <span className="text-[10px] text-cyan-electric">atención crítica</span>
                                 </div>
                                 <p className="text-[9px] text-gray-500 mt-1">Cubierto por el agente IA</p>
                             </div>
@@ -887,12 +904,12 @@ function DashboardContent() {
                                                         </p>
                                                     </td>
                                                     <td className="px-6 py-4 text-xs text-gray-500">
-                                                        {new Date(log.timestamp).toLocaleString('es-ES', {
+                                                        {isMounted ? new Date(log.timestamp).toLocaleString('es-ES', {
                                                             day: '2-digit',
                                                             month: '2-digit',
                                                             hour: '2-digit',
                                                             minute: '2-digit'
-                                                        })}
+                                                        }) : log.timestamp.split('T')[0]}
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase ${log.status === 'success'
@@ -919,21 +936,21 @@ function DashboardContent() {
                 ) : (
                     <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+                            <div className="premium-glass p-6 rounded-2xl border premium-border flex items-center gap-4">
                                 <div className="p-3 rounded-full bg-[#00FF94]/10 text-[#00FF94]"><CheckCircle2 size={24} /></div>
                                 <div><h4 className="text-white font-bold text-sm">Flujos n8n</h4><p className="text-[#00FF94] text-xs">Operativo</p></div>
                             </div>
-                            <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+                            <div className="premium-glass p-6 rounded-2xl border premium-border flex items-center gap-4">
                                 <div className="p-3 rounded-full bg-[#00FF94]/10 text-[#00FF94]"><CheckCircle2 size={24} /></div>
                                 <div><h4 className="text-white font-bold text-sm">Base de Datos</h4><p className="text-[#00FF94] text-xs">Operativo</p></div>
                             </div>
-                            <div className="glass-card p-6 rounded-2xl bg-white/5 border border-white/10 flex items-center gap-4">
+                            <div className="premium-glass p-6 rounded-2xl border premium-border flex items-center gap-4">
                                 <div className="p-3 rounded-full bg-[#00FF94]/10 text-[#00FF94]"><CheckCircle2 size={24} /></div>
                                 <div><h4 className="text-white font-bold text-sm">IA Agents</h4><p className="text-[#00FF94] text-xs">Operativo</p></div>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="glass-card p-8 rounded-3xl bg-white/5 border border-white/10">
+                            <div className="premium-glass p-8 rounded-3xl border premium-border">
                                 <div className="flex items-center gap-3 mb-6">
                                     <LifeBuoy className="text-[#00FF94]" /><h3 className="text-xl font-bold">Abrir Ticket de Soporte</h3>
                                 </div>
@@ -983,12 +1000,12 @@ function DashboardContent() {
                                     )}
                                 </form>
                             </div>
-                            <div className="glass-card p-8 rounded-3xl bg-white/5 border border-white/10 border-l-purple-500 border-l-4">
-                                <h3 className="text-xl font-bold mb-4">Mantenimiento HecTechAi</h3>
+                            <div className="premium-glass p-8 rounded-3xl border premium-border border-l-cyan-electric border-l-4">
+                                <h3 className="text-xl font-bold mb-4 text-gradient">Mantenimiento HecTechAi</h3>
                                 <div className="space-y-4">
                                     <div className="flex gap-4">
-                                        <div className="mt-1"><AlertCircle size={18} className="text-purple-400" /></div>
-                                        <div><p className="text-white text-sm font-bold">Próxima Optimización</p><p className="text-gray-400 text-xs">05/02/2026 - Actualización de modelos LLM</p></div>
+                                        <div className="mt-1"><AlertCircle size={18} className="text-[#00F2FF]" /></div>
+                                        <div><p className="text-white text-sm font-bold">Próxima Optimización</p><p className="text-gray-400 text-xs">25/03/2026 - Actualización de modelos LLM</p></div>
                                     </div>
                                     <p className="text-gray-400 text-sm leading-relaxed pt-4 border-t border-white/10">Tu ecosistema está bajo monitoreo continuo. Cualquier anomalía detectada por nuestro sistema de IA generará una alerta automática en nuestra central.</p>
                                 </div>

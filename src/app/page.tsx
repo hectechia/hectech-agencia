@@ -1,65 +1,66 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
-  Bot,
-  Cpu,
   Zap,
   Clock,
   Target,
   TrendingUp,
-  MessageSquare,
   Calendar,
-  ArrowRight,
   Menu,
   X,
   CheckCircle2,
-  Database,
   Globe,
   Sparkles,
   Loader2,
-  AlertCircle,
-  BarChart3,
-  PenTool,
-  Search,
-  Instagram,
-  Mail,
-  Plus,
-  Minus,
   Users,
   Rocket,
   ShieldCheck,
-  Camera
+  Camera,
+  Plus,
+  Minus,
+  Instagram,
+  Mail,
+  ArrowRight
 } from 'lucide-react';
 import { motion, useInView, useAnimation } from 'framer-motion';
-import { ContactForm } from './ContactForm';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { generateAuditAction } from './actions';
-import { VisualAudit } from '../components/VisualAudit';
-import { HeroChatbot } from '../components/HeroChatbot';
+import { HeroChatbot } from '../ui/components/HeroChatbot';
+import { HeroCanvas } from '../ui/components/HeroCanvas';
+import { BentoGrid } from '../ui/components/BentoGrid';
+
+const ContactForm = dynamic(() => import('./ContactForm').then(mod => mod.ContactForm), { ssr: false });
+const VisualAudit = dynamic(() => import('../ui/components/VisualAudit').then(mod => mod.VisualAudit), { ssr: false });
+const LiveDemo = dynamic(() => import('./LiveDemo'), { ssr: false });
+const PreCalendarModal = dynamic(() => import('../ui/components/PreCalendarModal').then(mod => mod.PreCalendarModal), { ssr: false });
+
+const CALENDAR_URL = 'https://calendar.app.google/iSajQABW249gqbvB9';
 
 // --- ANIMATION HELPER ---
-const Reveal = ({ children, width = "fit-content" }: { children: React.ReactNode, width?: "fit-content" | "100%" }) => {
-  const ref = React.useRef(null);
+const Reveal = ({ children, width = 'fit-content' }: { children: React.ReactNode; width?: 'fit-content' | '100%' }) => {
+  const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
   const mainControls = useAnimation();
 
   useEffect(() => {
     if (isInView) {
-      mainControls.start("visible");
+      mainControls.start('visible');
     }
   }, [isInView, mainControls]);
 
   return (
-    <div ref={ref} style={{ position: "relative", width, overflow: "visible" }}>
+    <div ref={ref} style={{ position: 'relative', width, overflow: 'visible' }}>
       <motion.div
         variants={{
-          hidden: { opacity: 0, y: 75 },
+          hidden: { opacity: 0, y: 40 },
           visible: { opacity: 1, y: 0 },
         }}
         initial="hidden"
         animate={mainControls}
-        transition={{ duration: 0.5, delay: 0.25 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       >
         {children}
       </motion.div>
@@ -67,29 +68,20 @@ const Reveal = ({ children, width = "fit-content" }: { children: React.ReactNode
   );
 };
 
-// --- FLOATING CTA ---
-const CALENDAR_URL = 'https://calendar.app.google/iSajQABW249gqbvB9';
-
-const MagneticButton = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+// --- MAGNETIC BUTTON ---
+const MagneticButton = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [mounted, setMounted] = useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const ref = useRef<HTMLDivElement>(null);
 
   const handleMouse = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { left, top, width, height } = ref.current?.getBoundingClientRect() || { left: 0, top: 0, width: 0, height: 0 };
     const x = clientX - (left + width / 2);
     const y = clientY - (top + height / 2);
-    setPosition({ x: x * 0.3, y: y * 0.3 });
+    setPosition({ x: x * 0.25, y: y * 0.25 });
   };
 
   const reset = () => setPosition({ x: 0, y: 0 });
-
-  if (!mounted) return <div className={className}>{children}</div>;
 
   return (
     <motion.div
@@ -97,7 +89,7 @@ const MagneticButton = ({ children, className }: { children: React.ReactNode, cl
       onMouseMove={handleMouse}
       onMouseLeave={reset}
       animate={{ x: position.x, y: position.y }}
-      transition={{ type: "spring", stiffness: 150, damping: 15, mass: 0.1 }}
+      transition={{ type: 'spring', stiffness: 180, damping: 18, mass: 0.1 }}
       className={className}
     >
       {children}
@@ -105,297 +97,391 @@ const MagneticButton = ({ children, className }: { children: React.ReactNode, cl
   );
 };
 
-const FloatingCTA = () => {
+// --- FLOATING CTA ---
+const FloatingCTA = ({ onOpenCalendar }: { onOpenCalendar: () => void }) => {
   const [visible, setVisible] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const onScroll = () => setVisible(window.scrollY > 350);
-    window.addEventListener('scroll', onScroll);
+    const onScroll = () => setVisible(window.scrollY > 450);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  if (!mounted || !visible) return null;
+  if (!visible) return null;
 
   return (
-    <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 floating-cta">
+    <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2">
       <MagneticButton>
-        <a
-          href={CALENDAR_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 bg-[#00FF94] text-black px-8 py-4 rounded-full font-black text-lg shadow-[0_10px_40px_rgba(0,255,148,0.5)] hover:scale-105 transition-transform whitespace-nowrap badge-pulse"
+        <button
+          onClick={onOpenCalendar}
+          className="btn-high-ticket flex items-center gap-3 px-8 py-4 rounded-full text-base whitespace-nowrap shadow-2xl cursor-pointer"
         >
-          <Calendar size={20} />
-          Reservar mi auditoría gratuita
-        </a>
+          <Calendar size={18} />
+          <span>Solicitar Auditoría 360°</span>
+        </button>
       </MagneticButton>
+      <Link
+        href="/auditoria-gratis?utm_source=floating"
+        className="text-[11px] font-mono text-zinc-400 hover:text-[#00FF85] transition-colors whitespace-nowrap bg-[#050507]/90 px-3 py-1 rounded-full border border-white/5 backdrop-blur-md"
+      >
+        ¿Prefieres recibir informe PDF por email? →
+      </Link>
     </div>
   );
 };
 
-// --- COMPONENTS ---
-
-const Navbar = () => {
+// --- NAVBAR ---
+const Navbar = ({ onOpenCalendar }: { onOpenCalendar: () => void }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
     { name: 'Beneficios', href: '#beneficios' },
-    { name: 'Demos', href: '#demos' },
-    { name: 'Auditoría IA ✨', href: '#auditoria-ia' },
-    { name: 'Servicios', href: '#servicios' },
+    { name: '4 Motores Core', href: '#servicios' },
+    { name: 'Demos en Vivo', href: '#demos' },
+    { name: 'Auditoría 360°', href: '#auditoria-ia' },
+    { name: 'Calculadora ROI', href: '#roi-calculator' },
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-[#050505]/90 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'}`}>
+    <nav
+      className={`fixed w-full z-[100] transition-all duration-300 ${
+        scrolled
+          ? 'bg-[#050507]/85 backdrop-blur-xl border-b border-white/[0.08] py-3.5'
+          : 'bg-transparent py-5'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <a href="#" className="flex items-center gap-3 cursor-pointer group">
           <Image
             src="/logo.png"
             alt="HecTechAi Logo"
-            width={56}
-            height={56}
-            className="object-contain group-hover:scale-110 transition-transform"
+            width={44}
+            height={44}
+            className="object-contain group-hover:scale-105 transition-transform"
             style={{ mixBlendMode: 'screen' }}
           />
-          <div className="flex items-center gap-2 font-display font-bold text-xl md:text-3xl tracking-tighter text-white group-hover:text-[#00FF94] transition-colors">
-            <span>Hec<span className="text-[#00FF94]">TechAi</span></span>
+          <div className="flex items-center gap-2 font-display font-black text-xl md:text-2xl tracking-tighter text-white">
+            <span>
+              Hec<span className="text-[#00FF85]">TechAi</span>
+            </span>
           </div>
+          <span className="hidden sm:inline-flex ml-2 px-2 py-0.5 rounded text-[9px] font-mono uppercase tracking-widest bg-white/[0.04] text-zinc-400 border border-white/10">
+            ENGINE 2.0
+          </span>
         </a>
 
-        <div className="hidden md:flex items-center gap-8">
+        {/* Desktop Navigation */}
+        <div className="hidden lg:flex items-center gap-7">
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} className="text-gray-400 hover:text-white text-sm font-medium transition-colors">
+            <a
+              key={link.name}
+              href={link.href}
+              className="text-zinc-400 hover:text-white text-xs font-mono uppercase tracking-wider transition-colors"
+            >
               {link.name}
             </a>
           ))}
-          <motion.a
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Link
             href="/dashboard"
-            className="flex items-center gap-2 bg-white/5 border border-white/10 text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-white/10 transition-all"
+            className="btn-glass-secondary px-4 py-2 rounded-xl text-xs flex items-center gap-2"
           >
-            <Users size={16} />
+            <Users size={14} />
             Acceso Clientes
-          </motion.a>
-          <a
-            href={CALENDAR_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-[#00FF94] text-black px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-[#00cc76] transition-all glow-effect badge-pulse"
+          </Link>
+          <button
+            onClick={onOpenCalendar}
+            className="btn-high-ticket px-5 py-2 rounded-xl text-xs flex items-center gap-2 cursor-pointer"
           >
-            <Calendar size={16} />
-            Charla 15 min
-          </a>
+            <Calendar size={14} />
+            Auditoría 360°
+          </button>
         </div>
 
-        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-white">
-          {isOpen ? <X /> : <Menu />}
+        {/* Mobile Hamburger */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="lg:hidden text-zinc-300 hover:text-white p-2"
+          aria-label="Alternar menú móvil"
+        >
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
+      {/* Mobile Drawer */}
       {isOpen && (
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -15 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="md:hidden absolute top-full left-0 w-full bg-[#050505] border-b border-white/10 p-6 flex flex-col gap-4 shadow-2xl z-50"
+          exit={{ opacity: 0, y: -15 }}
+          className="lg:hidden absolute top-full left-0 w-full bg-[#050507]/95 backdrop-blur-2xl border-b border-white/10 p-6 flex flex-col gap-4 shadow-2xl z-[100]"
         >
           {navLinks.map((link) => (
-            <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className="text-gray-300 hover:text-[#00FF94] font-medium text-lg py-2 border-b border-white/5 last:border-0">
+            <a
+              key={link.name}
+              href={link.href}
+              onClick={() => setIsOpen(false)}
+              className="text-zinc-300 hover:text-[#00FF85] font-mono text-sm uppercase tracking-wider py-2 border-b border-white/5 last:border-0"
+            >
               {link.name}
             </a>
           ))}
-          <a
-            href="/dashboard"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center justify-center gap-2 bg-white/5 border border-white/10 text-white w-full py-4 rounded-xl font-bold"
-          >
-            <Users size={20} />
-            Acceso Clientes
-          </a>
-          <a
-            href={CALENDAR_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center justify-center gap-2 bg-[#00FF94] text-center text-black w-full py-4 rounded-xl font-bold mt-2 shadow-[0_0_20px_rgba(0,255,148,0.2)]"
-          >
-            <Calendar size={18} />
-            Reservar charla de 15 min
-          </a>
+          <div className="flex flex-col gap-3 pt-2">
+            <Link
+              href="/dashboard"
+              onClick={() => setIsOpen(false)}
+              className="btn-glass-secondary py-3 rounded-xl text-center text-sm flex items-center justify-center gap-2"
+            >
+              <Users size={16} />
+              Acceso Clientes
+            </Link>
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onOpenCalendar();
+              }}
+              className="btn-high-ticket py-3.5 rounded-xl text-center text-sm flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Calendar size={16} />
+              Solicitar Auditoría 360°
+            </button>
+          </div>
         </motion.div>
       )}
     </nav>
   );
 };
 
-const Hero = () => {
+// --- HERO SECTION ($50K HOOK) ---
+const Hero = ({ onOpenCalendar }: { onOpenCalendar: () => void }) => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-24 pb-12 overflow-hidden">
-      <div className="absolute inset-0 circuit-bg z-0 pointer-events-none opacity-40"></div>
+    <section className="relative min-h-screen flex items-center justify-center pt-32 pb-20 overflow-hidden bg-[#050507]">
+      {/* Interactive Micro-mesh Canvas */}
+      <HeroCanvas />
 
-      {/* Luces de ambiente Premium */}
-      <motion.div
-        animate={{
-          scale: [1, 1.4, 1],
-          opacity: [0.15, 0.25, 0.15],
-          x: [0, 50, 0],
-          y: [0, -50, 0]
-        }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="absolute top-0 -left-1/4 w-[600px] h-[600px] bg-[#00FF94]/30 rounded-full blur-[180px] pointer-events-none"
-      ></motion.div>
-      <motion.div
-        animate={{
-          scale: [1.4, 1, 1.4],
-          opacity: [0.15, 0.25, 0.15],
-          x: [0, -70, 0],
-          y: [0, 60, 0]
-        }}
-        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-0 -right-1/4 w-[700px] h-[700px] bg-[#00C2FF]/20 rounded-full blur-[200px] pointer-events-none"
-      ></motion.div>
+      {/* Subtle Ambient Radial Halos (Surgical 8-12%) */}
+      <div className="absolute top-10 -left-40 w-[550px] h-[550px] halo-emerald blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-10 -right-40 w-[600px] h-[600px] halo-cyan blur-[160px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] halo-amber blur-[180px] pointer-events-none opacity-40" />
 
-      <div className="absolute inset-0 noise-bg opacity-20 pointer-events-none"></div>
+      <div className="absolute inset-0 circuit-bg opacity-30 pointer-events-none" />
+      <div className="absolute inset-0 noise-bg opacity-20 pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center relative z-10">
+        
+        {/* Left Column: The $50k Hook */}
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-left space-y-6"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-7 space-y-8 text-left"
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-8xl font-black leading-[1.0] tracking-tighter text-white font-display mb-8">
-            No más <span className="text-gradient">ventas perdidas</span>.<br className="hidden sm:block" />
-            Tu Agente de IA cierra clientes mientras escalas.
-          </h1>
-
-          <p className="text-gray-400 text-lg lg:text-2xl max-w-xl leading-relaxed mb-10">
-            Auditamos tu operativa e implementamos IA de élite que elimina las horas perdidas y asegura que <span className="text-white font-bold">ningún lead se quede sin respuesta</span>.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <MagneticButton>
-              <motion.a
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                href={CALENDAR_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-[#00FF94] text-black px-10 py-5 rounded-2xl font-black text-xl transition-all glow-effect flex items-center justify-center gap-3 shadow-[0_20px_50px_rgba(0,255,148,0.3)]"
-              >
-                <Calendar size={24} />
-                Agendar Auditoría Gratis
-              </motion.a>
-            </MagneticButton>
-            <motion.a
-              whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-              href="#demos"
-              className="px-8 py-4 rounded-xl font-bold text-white border border-white/20 transition-all flex items-center justify-center gap-2 group"
-            >
-              <Sparkles size={18} className="group-hover:text-[#00FF94] transition-colors" />
-              Ver demos en vivo
-            </motion.a>
+          {/* Animated Status Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.02] border border-white/[0.08] backdrop-blur-xl">
+            <span className="w-2 h-2 rounded-full bg-[#00FF85] animate-ping" />
+            <span className="swiss-tag text-[10px] text-zinc-300">
+              HECTECHAI · AUTOMATION &amp; CINEMATIC WEB ENGINE
+            </span>
           </div>
 
-          {/* Métricas de Impacto */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6">
-            {[
-              { val: "24/7", label: "Sin descanso", color: "#00FF94" },
-              { val: "< 5 min", label: "Respuesta media", color: "#00C2FF" },
-              { val: "0€", label: "Auditoría inicial", color: "#8B5CF6" },
-              { val: "Sin permanencia", label: "Cancela cuando quieras", color: "#FFE600" }
-            ].map((metric, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + (i * 0.1) }}
-                className="glass-card p-4 rounded-xl text-center hover:border-primary/50 transition-colors"
+          {/* Monumental Headline */}
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black leading-[0.95] tracking-tighter text-white font-display">
+            Automatización e <br className="hidden sm:block" />
+            <span className="text-gradient">Infraestructura Web</span> que Convierte Negocios Locales en Máquinas de Escala.
+          </h1>
+
+          {/* Tech-Commercial Subtitle */}
+          <p className="text-zinc-400 text-lg sm:text-xl lg:text-2xl max-w-2xl leading-relaxed font-normal">
+            Sustituimos páginas obsoletas y procesos manuales por <strong className="text-white font-semibold">experiencias web cinemáticas</strong>, <strong className="text-white font-semibold">agentes de voz 24/7</strong> y <strong className="text-white font-semibold">enjambres de IA</strong> que capturan clientes mientras duermes.
+          </p>
+
+          {/* Dual High-Ticket CTAs */}
+          <div className="flex flex-col sm:flex-row gap-4 pt-2">
+            <MagneticButton>
+              <button
+                onClick={onOpenCalendar}
+                className="btn-high-ticket px-9 py-5 rounded-2xl text-base flex items-center justify-center gap-3 shadow-[0_20px_50px_rgba(0,255,133,0.3)] cursor-pointer"
               >
-                <div className="text-xl font-bold mb-1" style={{ color: metric.color }}>{metric.val}</div>
-                <div className="text-[9px] text-gray-500 uppercase tracking-wider">{metric.label}</div>
-              </motion.div>
+                <Calendar size={20} />
+                <span>Solicitar Auditoría 360°</span>
+              </button>
+            </MagneticButton>
+
+            <a
+              href="#demos"
+              className="btn-glass-secondary px-8 py-5 rounded-2xl text-base flex items-center justify-center gap-2 group"
+            >
+              <Sparkles size={18} className="text-[#00FF85] group-hover:rotate-12 transition-transform" />
+              <span>Ver Enjambres en Vivo</span>
+            </a>
+          </div>
+
+          {/* HUD Telemetry Metrics */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-white/[0.08]">
+            {[
+              { label: 'Disponibilidad', value: '24/7/365', accent: '#00FF85' },
+              { label: 'Latencia Red', value: '< 42ms', accent: '#00F2FF' },
+              { label: 'Auditoría Inicial', value: '0€ Sin Riesgo', accent: '#00FF85' },
+              { label: 'Permanencia', value: '0 Días (Libre)', accent: '#FFB800' },
+            ].map((metric, i) => (
+              <div
+                key={i}
+                className="precision-glass p-3.5 rounded-2xl text-left border border-white/[0.06]"
+              >
+                <div className="text-[9px] font-mono text-zinc-500 uppercase tracking-wider">{metric.label}</div>
+                <div className="text-lg sm:text-xl font-bold font-display mt-0.5" style={{ color: metric.accent }}>
+                  {metric.value}
+                </div>
+              </div>
             ))}
           </div>
         </motion.div>
 
+        {/* Right Column: HeroChatbot with Obsidian Precision Frame */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="relative flex items-center justify-center order-first lg:order-last mt-8 lg:mt-0"
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          className="lg:col-span-5 relative flex items-center justify-center"
         >
-          <HeroChatbot />
+          {/* Subtle Halo behind chatbot */}
+          <div className="absolute inset-0 halo-emerald blur-[90px] opacity-30 pointer-events-none" />
+
+          <div className="w-full relative z-10">
+            {/* Top Engineering Telemetry Tag */}
+            <div className="mb-3 flex items-center justify-between px-2 text-[10px] font-mono text-zinc-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#00FF85] animate-pulse" />
+                CONCIERGE AGENT · ENJAMBRE ACTIVO
+              </span>
+              <span className="text-[#00F2FF]">TELEMETRÍA EN DIRECTO</span>
+            </div>
+
+            <div className="rounded-3xl border border-white/[0.1] bg-[#08080c]/90 backdrop-blur-2xl shadow-2xl p-2 relative overflow-hidden">
+              <HeroChatbot />
+            </div>
+          </div>
         </motion.div>
+
       </div>
     </section>
   );
 };
 
+// --- ENGINEERING TELEMETRY MARQUEE ---
+const EngineeringTelemetry = () => {
+  const items = [
+    '+120.000 SOLICITUDES PROCESADAS',
+    'LATENCIA MEDIA < 480MS',
+    '99.98% UPTIME INFRAESTRUCTURA',
+    '0 CITAS PERDIDAS EN FESTIVOS',
+    'ORQUESTACIÓN N8N EMPRESARIAL',
+    'MULTI-TENANT SUPABASE RLS',
+    'SSR NEXT.JS 16 TURBOPACK',
+    'VOZ VAPI ULTRA-LOW LATENCY',
+    'CACHE DE PROMPTS OPTIMIZADO AL 90%',
+  ];
+
+  return (
+    <div className="w-full bg-[#030305] border-y border-white/[0.08] py-4 overflow-hidden relative">
+      <div className="animate-marquee whitespace-nowrap flex items-center gap-10">
+        {[...items, ...items].map((text, idx) => (
+          <div key={idx} className="flex items-center gap-4 text-xs font-mono tracking-widest text-zinc-400 uppercase">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00FF85]" />
+            <span>{text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- BENEFITS SECTION ---
 const Benefits = () => {
   const benefits = [
     {
-      icon: <Clock size={32} className="text-[#00FF94]" />,
-      title: "Atención 24/7",
-      desc: "Tu negocio nunca duerme. Responde a leads al instante, incluso fuera de horario, capturando cada oportunidad.",
+      icon: <Clock size={28} className="text-[#00FF85]" />,
+      tag: 'DISPONIBILIDAD TOTAL',
+      title: 'Atención 24/7 Sin Descanso',
+      desc: 'Tu negocio nunca duerme. Responde a clientes y leads al instante a las 23:00 o en domingo, bloqueando ventas antes de que busquen a tu competidor.',
     },
     {
-      icon: <Target size={32} className="text-[#00C2FF]" />,
-      title: "Operaciones Cero Errores",
-      desc: "Elimina el error humano. Automatiza desde el agendamiento hasta la facturación con precisión milimétrica.",
+      icon: <Target size={28} className="text-[#00F2FF]" />,
+      tag: 'PRECISIÓN QUIRÚRGICA',
+      title: 'Operaciones Cero Errores',
+      desc: 'Elimina descuidos y citas duplicadas. Automatiza desde la reserva hasta la sincronización en CRM y facturación con exactitud matemática.',
     },
     {
-      icon: <TrendingUp size={32} className="text-purple-400" />,
-      title: "Escalabilidad Exponencial",
-      desc: "Crece sin límites. Maneja 10x más clientes sin necesidad de aumentar tu plantilla o infraestructura.",
+      icon: <TrendingUp size={28} className="text-[#00FF85]" />,
+      tag: 'ESCALABILIDAD REAL',
+      title: 'Capacidad 10x Sin Contratar',
+      desc: 'Absorbe picos de demanda y miles de conversaciones simultáneas sin aumentar tu coste de personal ni sobrecargar a tu equipo.',
     },
     {
-      icon: <Zap size={32} className="text-[#FFE600]" />,
-      title: "Fidelización Inteligente",
-      desc: "Sistemas que aprenden de tus clientes para ofrecer seguimiento post-venta que garantiza la recurrencia.",
+      icon: <Zap size={28} className="text-[#FFB800]" />,
+      tag: 'RECUPERACIÓN DE INGRESOS',
+      title: 'Fidelización Automatizada',
+      desc: 'Recordatorios inteligentes por WhatsApp que reducen el absentismo a menos del 3% y reactivan clientes inactivos con ofertas personalizadas.',
     },
     {
-      icon: <Globe size={32} className="text-blue-400" />,
-      title: "Datos en Tiempo Real",
-      desc: "Toma decisiones basadas en evidencias con dashboards que muestran el rendimiento de tu embudo de ventas.",
+      icon: <Globe size={28} className="text-[#00F2FF]" />,
+      tag: 'ARQUITECTURA MODERNA',
+      title: 'Velocidad Web Extrema',
+      desc: 'Portales desarrollados con Next.js y React 19 que cargan en menos de 1 segundo, posicionando tu negocio por encima de páginas lentas en Google.',
     },
     {
-      icon: <CheckCircle2 size={32} className="text-green-400" />,
-      title: "Reducción de Costes",
-      desc: "Reduce hasta un 70% los costes operativos delegando tareas repetitivas a sistemas inteligentes.",
+      icon: <CheckCircle2 size={28} className="text-[#00FF85]" />,
+      tag: 'RENTABILIDAD MEDIBLE',
+      title: 'Reducción de Costes del 70%',
+      desc: 'Sustituye horas de gestión manual por flujos automatizados de n8n. Inversión recuperada habitualmente en las primeras 6 semanas.',
     },
   ];
 
   return (
-    <section id="beneficios" className="py-24 bg-[#0A0A0A] relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="beneficios" className="py-28 bg-[#050507] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
         <Reveal width="100%">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white font-display">¿Por qué tu negocio necesita <span className="text-gradient">IA hoy</span>?</h2>
-            <p className="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">La tecnología ya no es solo para grandes empresas. Nivelamos el campo de juego para ti.</p>
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <div className="swiss-tag justify-center">
+              <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+              VENTAJA COMPETITIVA SISTÉMICA
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+              ¿Por Qué Seguir Operando con <br />
+              <span className="text-gradient">Sistemas del Siglo Pasado</span>?
+            </h2>
+            <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+              Las empresas que lideran no trabajan más horas; automatizan las tareas repetitivas y concentran su talento humano en cerrar acuerdos de alto valor.
+            </p>
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {benefits.map((item, index) => (
             <Reveal key={index} width="100%">
-              <div className="premium-glass p-10 rounded-3xl group hover:-translate-y-2 transition-transform duration-500 h-full relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-[#00FF94]/10 transition-colors"></div>
-                <div className="w-20 h-20 bg-white/5 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                  {item.icon}
+              <div className="precision-glass precision-glass-hover p-8 rounded-3xl h-full flex flex-col justify-between group">
+                <div className="space-y-5">
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:scale-105 transition-transform">
+                      {item.icon}
+                    </div>
+                    <span className="swiss-tag text-[9px] px-2.5 py-1 rounded-full bg-white/[0.02] border border-white/5">
+                      {item.tag}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white font-display tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
-                <h3 className="text-3xl font-black mb-4 text-white font-display tracking-tight">{item.title}</h3>
-                <p className="text-gray-400 text-lg leading-relaxed">{item.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -403,9 +489,243 @@ const Benefits = () => {
       </div>
     </section>
   );
-}
+};
 
+// --- PROCESS METHODOLOGY SECTION ---
+const Process = () => {
+  const steps = [
+    {
+      num: '01',
+      title: 'Auditoría Quirúrgica 360°',
+      desc: 'Mapeamos tus fugas de conversión, tiempos de respuesta y procesos manuales. En 48h recibes un blueprint de optimización sin rodeos.',
+      tag: 'DIAGNÓSTICO',
+    },
+    {
+      num: '02',
+      title: 'Despliegue del Enjambre',
+      desc: 'Construimos e integramos tus agentes de voz, chatbots WhatsApp y portales web conectados a tu CRM y calendario en un entorno aislado.',
+      tag: 'INGENIERÍA',
+    },
+    {
+      num: '03',
+      title: 'Optimización Continua & Escala',
+      desc: 'Afinamos prompts, monitorizamos telemetría y auditamos mensualmente para maximizar tu rentabilidad y mantener el coste de API al mínimo.',
+      tag: 'CRECIMIENTO',
+    },
+  ];
 
+  return (
+    <section id="proceso" className="py-28 relative bg-[#07070b]">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <Reveal width="100%">
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <div className="swiss-tag justify-center">
+              <span className="w-2 h-2 rounded-full bg-[#00F2FF]" />
+              METODOLOGÍA DE INGENIERÍA EN 3 ETAPAS
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+              Cómo Convertimos Fricción en <br />
+              <span className="text-gradient">Autonomía Operativa</span>
+            </h2>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+          {steps.map((step, index) => (
+            <Reveal key={index} width="100%">
+              <div className="precision-glass p-8 rounded-3xl h-full flex flex-col justify-between relative overflow-hidden group">
+                {/* Monumental Numbering */}
+                <div className="text-7xl font-black font-mono text-white/[0.04] absolute top-4 right-6 pointer-events-none select-none">
+                  {step.num}
+                </div>
+
+                <div className="space-y-4 relative z-10">
+                  <span className="swiss-tag text-[10px] text-[#00FF85]">{step.tag}</span>
+                  <h3 className="text-2xl font-bold text-white font-display">{step.title}</h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{step.desc}</p>
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-white/5 flex items-center gap-2 text-xs font-mono text-zinc-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF85]" />
+                  Entrega garantizada sin fricción
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// --- TRUST BLOCK & FOUNDER GUARANTEE ---
+const TrustBlock = () => {
+  const commitments = [
+    {
+      icon: <ShieldCheck size={28} className="text-[#00FF85]" />,
+      title: 'Garantía de las 5 Horas',
+      desc: 'Si durante el diagnóstico no identificamos al menos 5 horas semanales de ahorro operativo demostrable, no hay propuesta comercial. Punto.',
+      badge: 'SIN RIESGO',
+      color: '#00FF85',
+    },
+    {
+      icon: <Rocket size={28} className="text-[#00F2FF]" />,
+      title: 'Prototipo Funcional Previo',
+      desc: 'Construimos un flujo real con tus datos antes de formalizar cualquier contrato. Ves el agente operando antes de comprometer un solo euro.',
+      badge: 'PRUEBA REAL',
+      color: '#00F2FF',
+    },
+    {
+      icon: <Zap size={28} className="text-[#FFB800]" />,
+      title: 'Cero Permanencia',
+      desc: 'El mantenimiento mensual es cancelable en cualquier instante sin penalizaciones. Permaneces con nosotros únicamente si multiplicamos tu margen.',
+      badge: 'LIBERTAD TOTAL',
+      color: '#FFB800',
+    },
+    {
+      icon: <Users size={28} className="text-[#00FF85]" />,
+      title: 'Línea Directa con el Fundador',
+      desc: 'Sin intermediarios ni consultores juniors. Héctor Barberá lidera directamente el diseño de la arquitectura y la entrega de tu sistema.',
+      badge: 'TRATO DIRECTO',
+      color: '#00FF85',
+    },
+  ];
+
+  return (
+    <section className="py-28 bg-[#050507] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <Reveal width="100%">
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <div className="swiss-tag justify-center">
+              <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+              COMPROMISO DE ALTO NIVEL
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+              Resultados de Negocio, <br />
+              <span className="text-gradient">No Promesas Vacías</span>
+            </h2>
+            <p className="text-zinc-400 text-base sm:text-lg">
+              Construimos sistemas de software pensados para generar retorno medible desde el primer ciclo de facturación.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {commitments.map((item, i) => (
+            <Reveal key={i} width="100%">
+              <div className="precision-glass p-8 md:p-10 rounded-3xl h-full flex flex-col justify-between group">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/10 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <span
+                      className="text-[10px] font-mono font-bold uppercase tracking-wider px-3 py-1 rounded-full border"
+                      style={{
+                        color: item.color,
+                        borderColor: `${item.color}30`,
+                        backgroundColor: `${item.color}08`,
+                      }}
+                    >
+                      {item.badge}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white font-display">{item.title}</h3>
+                  <p className="text-zinc-400 text-base leading-relaxed">{item.desc}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+
+        {/* Inline Booking Call */}
+        <Reveal width="100%">
+          <div className="mt-16 text-center">
+            <a
+              href={CALENDAR_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-high-ticket inline-flex items-center gap-3 px-10 py-5 rounded-2xl text-base shadow-2xl"
+            >
+              <Calendar size={20} />
+              <span>Agendar Auditoría de 15 Minutos con Héctor</span>
+            </a>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  );
+};
+
+// --- ABOUT THE FOUNDER ---
+const AboutUs = () => {
+  return (
+    <section id="sobre-nosotros" className="py-28 bg-[#07070a] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <div className="lg:col-span-5">
+            <Reveal width="100%">
+              <div className="precision-glass p-3 rounded-3xl relative overflow-hidden group">
+                <div className="aspect-[4/5] relative bg-[#09090e] rounded-2xl overflow-hidden flex flex-col justify-end p-8 border border-white/10">
+                  <div className="absolute inset-0 flex items-center justify-center text-zinc-800 pointer-events-none">
+                    <Users size={160} />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-transparent" />
+                  <div className="relative z-10 space-y-1">
+                    <div className="swiss-tag text-[10px] text-[#00FF85]">DIRECTOR &amp; CREATIVE TECHNOLOGIST</div>
+                    <h3 className="text-3xl font-black text-white font-display">Héctor Barberá Sánchez</h3>
+                    <p className="text-xs font-mono text-zinc-400">Garraf / Sitges · Barcelona</p>
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+
+          <div className="lg:col-span-7 space-y-8">
+            <Reveal width="100%">
+              <div className="space-y-4">
+                <div className="swiss-tag">
+                  <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+                  FILOSOFÍA TÉCNICA
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+                  Construimos la Tecnología que <br />
+                  <span className="text-gradient">Devuelve tu Tiempo</span>
+                </h2>
+                <p className="text-zinc-400 text-lg leading-relaxed">
+                  Creé <strong className="text-white">HecTechAi</strong> porque vi a dueños de clínicas, restaurantes y negocios locales pasar los fines de semana respondiendo mensajes atrasados en lugar de descansar. Mi meta es que los sistemas autónomos hagan el trabajo aburrido y tú te dediques a expandir tu empresa.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="precision-glass p-6 rounded-2xl space-y-2">
+                <div className="swiss-tag text-[10px] text-[#00FF85]">MISIÓN</div>
+                <h4 className="text-lg font-bold text-white">Sistemas Autónomos</h4>
+                <p className="text-xs text-zinc-400">Sustituir procesos manuales lentos por infraestructuras digitales de alta fidelidad.</p>
+              </div>
+              <div className="precision-glass p-6 rounded-2xl space-y-2">
+                <div className="swiss-tag text-[10px] text-[#00F2FF]">COMPROMISO</div>
+                <h4 className="text-lg font-bold text-white">Soberanía de Datos</h4>
+                <p className="text-xs text-zinc-400">Tus datos e interacciones residen en servidores privados cifrados sin entrenar modelos externos.</p>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-white/[0.02] border-l-2 border-[#00FF85]">
+              <p className="text-zinc-300 italic text-base leading-relaxed">
+                &ldquo;La inteligencia artificial no debe ser un juguete ni una moda. O genera ingresos directos y libera horas de tu vida, o no vale la pena implementarla.&rdquo;
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
+
+// --- SMART & VISUAL AUDIT SECTION ---
 const SmartAudit = () => {
   const [activeTab, setActiveTab] = useState<'strategic' | 'visual'>('strategic');
   const [business, setBusiness] = useState('');
@@ -424,83 +744,102 @@ const SmartAudit = () => {
       if (response.success && response.data) {
         setResult(response.data);
       } else {
-        setResult(response.error || "⚠️ Error desconocido.");
+        setResult(response.error || '⚠️ Error al generar diagnóstico.');
       }
-    } catch (e) {
-      setResult("⚠️ Error de conexión. Inténtalo de nuevo.");
+    } catch {
+      setResult('⚠️ Error de conexión. Inténtalo de nuevo.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section id="auditoria-ia" className="py-24 relative overflow-hidden bg-black/50">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#00FF94] rounded-full blur-[120px] opacity-5 pointer-events-none"></div>
-
+    <section id="auditoria-ia" className="py-28 relative overflow-hidden bg-[#050507]">
       <div className="max-w-4xl mx-auto px-6 relative z-10">
         <Reveal width="100%">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white font-display">
-              Nuestra IA audita tu <br />
-              <span className="text-gradient hover:glow-text transition-all duration-500">Negocio en Tiempo Real</span>
+          <div className="text-center mb-12 space-y-4">
+            <div className="swiss-tag justify-center">
+              <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+              TERMINAL DE AUDITORÍA EN TIEMPO REAL
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+              Diagnóstico de Automatización <br />
+              <span className="text-gradient">Para tu Negocio</span>
             </h2>
-            <p className="text-gray-400">
-              Selecciona el tipo de análisis que necesitas para tu negocio.
+            <p className="text-zinc-400 text-base">
+              Selecciona el tipo de evaluación para recibir un análisis adaptado a tu operativa.
             </p>
           </div>
         </Reveal>
 
+        {/* Mode Selector Tabs */}
         <Reveal width="100%">
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+          <div className="flex justify-center gap-3 mb-8">
             <button
               onClick={() => setActiveTab('strategic')}
-              className={`px-6 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'strategic' ? 'bg-[#00FF94] text-black shadow-[0_0_20px_rgba(0,255,148,0.3)]' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+              className={`px-6 py-3 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                activeTab === 'strategic'
+                  ? 'bg-[#00FF85] text-black shadow-lg'
+                  : 'bg-white/[0.03] text-zinc-400 hover:text-white border border-white/10'
+              }`}
             >
-              <Sparkles size={18} />
-              Plan Estratégico
+              <Sparkles size={16} />
+              Plan Estratégico IA
             </button>
             <button
               onClick={() => setActiveTab('visual')}
-              className={`px-6 py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'visual' ? 'bg-[#00FF94] text-black shadow-[0_0_20px_rgba(0,255,148,0.3)]' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`}
+              className={`px-6 py-3 rounded-xl font-mono text-xs uppercase tracking-wider font-bold transition-all cursor-pointer flex items-center gap-2 ${
+                activeTab === 'visual'
+                  ? 'bg-[#00FF85] text-black shadow-lg'
+                  : 'bg-white/[0.03] text-zinc-400 hover:text-white border border-white/10'
+              }`}
             >
-              <Camera size={18} />
-              Análisis Visual
+              <Camera size={16} />
+              Análisis Visual de Web
             </button>
           </div>
         </Reveal>
 
         <Reveal width="100%">
-          <div className="glass-card p-8 md:p-10 rounded-3xl border border-white/10 shadow-2xl min-h-[400px] premium-border">
+          <div className="precision-glass p-8 md:p-12 rounded-3xl border border-white/10 shadow-2xl">
             {activeTab === 'strategic' ? (
-              <div className="animate-in fade-in duration-500">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">¿Qué tipo de negocio tienes?</label>
+                    <label className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                      Tipo de Negocio o Sector
+                    </label>
                     <input
                       type="text"
-                      placeholder="Ej. Clínica Dental, Inmobiliaria..."
-                      className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white focus:border-[#00FF94] focus:outline-none transition-colors"
+                      placeholder="Ej. Clínica Dental, Inmobiliaria, Restaurante..."
+                      className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-[#00FF85] focus:outline-none transition-colors"
                       value={business}
                       onChange={(e) => setBusiness(e.target.value)}
                     />
                   </div>
+
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-300">¿Cuál es tu mayor dolor de cabeza?</label>
+                    <label className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                      Mayor Cuello de Botella
+                    </label>
                     <input
                       type="text"
-                      placeholder="Ej. No respondo WhatsApps a tiempo..."
-                      className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white focus:border-[#00FF94] focus:outline-none transition-colors"
+                      placeholder="Ej. Mensajes sin responder a deshoras..."
+                      className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-[#00FF85] focus:outline-none transition-colors"
                       value={painPoint}
                       onChange={(e) => setPainPoint(e.target.value)}
                     />
                   </div>
+
                   <div className="space-y-2 md:col-span-2">
-                    <label className="text-sm font-medium text-gray-300">Tu mejor email (para enviarte el plan completo)</label>
+                    <label className="text-xs font-mono uppercase tracking-wider text-zinc-400">
+                      Email Profesional para el Diagnóstico
+                    </label>
                     <input
                       type="email"
-                      placeholder="tu@email.com"
+                      placeholder="gerencia@tunegocio.com"
                       required
-                      className="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-white focus:border-[#00FF94] focus:outline-none transition-colors"
+                      className="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-[#00FF85] focus:outline-none transition-colors"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
@@ -510,17 +849,28 @@ const SmartAudit = () => {
                 <button
                   onClick={generateAudit}
                   disabled={loading || !business || !painPoint || !email}
-                  className="w-full bg-[#00FF94] text-black font-bold py-4 rounded-xl text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed glow-effect mb-8 flex items-center justify-center gap-2"
+                  className="btn-high-ticket w-full py-4 rounded-xl text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? <><Loader2 className="animate-spin" size={20} /> Generando Plan...</> : <><Sparkles size={20} /> Generar mi Plan IA Gratis</>}
+                  {loading ? (
+                    <>
+                      <Loader2 className="animate-spin" size={18} />
+                      Analizando Cuellos de Botella...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={18} />
+                      Generar Plan de Automatización Gratuito
+                    </>
+                  )}
                 </button>
 
                 {result && (
-                  <div className="p-6 bg-white/5 border border-[#00FF94]/20 rounded-2xl animate-in slide-in-from-bottom-4 duration-500">
-                    <h4 className="text-[#00FF94] font-bold mb-3 flex items-center gap-2 uppercase tracking-wider text-sm">
-                      <Sparkles size={16} /> Tu Estrategia Personalizada
-                    </h4>
-                    <p className="text-gray-300 leading-relaxed italic whitespace-pre-line">
+                  <div className="p-6 bg-white/[0.02] border border-[#00FF85]/30 rounded-2xl animate-in fade-in duration-500">
+                    <div className="flex items-center gap-2 text-[#00FF85] text-xs font-mono uppercase tracking-wider mb-3">
+                      <Sparkles size={14} />
+                      Diagnóstico Generado
+                    </div>
+                    <p className="text-zinc-200 text-sm leading-relaxed whitespace-pre-line font-mono">
                       {result}
                     </p>
                   </div>
@@ -531,105 +881,15 @@ const SmartAudit = () => {
                 <VisualAudit />
               </div>
             )}
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-};
 
-// --- TRUST BLOCK (reemplaza testimonios falsos) ---
-const TrustBlock = () => {
-  const guarantees = [
-    {
-      icon: <ShieldCheck size={32} className="text-[#00FF94]" />,
-      title: "Garantía de las 5 horas",
-      desc: "Si no identificamos al menos 5 horas semanales de ahorro real en tu operativa durante la auditoría gratuita, no cobramos la implementación. Punto.",
-      tag: "Sin riesgo",
-      tagColor: "#00FF94",
-    },
-    {
-      icon: <Rocket size={32} className="text-[#00C2FF]" />,
-      title: "Demo antes de firmar",
-      desc: "Construimos un prototipo funcional de tu automatización antes de cualquier contrato. Ves el sistema en marcha con tus propios datos antes de comprometerte.",
-      tag: "Prueba primero",
-      tagColor: "#00C2FF",
-    },
-    {
-      icon: <Zap size={32} className="text-purple-400" />,
-      title: "Sin permanencia",
-      desc: "El retainer es mensual y cancelable en cualquier momento. Si el sistema no te está generando valor, no tiene sentido que sigas pagando. Así de simple.",
-      tag: "Sin ataduras",
-      tagColor: "#a78bfa",
-    },
-    {
-      icon: <Users size={32} className="text-[#FFE600]" />,
-      title: "Acceso directo al fundador",
-      desc: "No hay intermediarios ni cuentas gestionadas por juniors. Hector trabaja contigo personalmente en cada proyecto desde el día 1 hasta la entrega.",
-      tag: "Trato directo",
-      tagColor: "#FFE600",
-    },
-  ];
-
-  return (
-    <section className="py-24 bg-black relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#00FF94]/5 rounded-full blur-[150px]"></div>
-      </div>
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
-        <Reveal width="100%">
-          <div className="text-center mb-16">
-            <span className="inline-block text-[#00FF94] text-xs font-black uppercase tracking-[0.3em] mb-4 px-4 py-2 rounded-full border border-[#00FF94]/20 bg-[#00FF94]/5">
-              Por qué elegirnos
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white font-display">
-              Resultados, no <span className="text-gradient">promesas vacías</span>
-            </h2>
-            <p className="text-gray-400 max-w-2xl mx-auto">
-              Somos una agencia nueva con una filosofía muy clara: si no generamos valor real y medible, no cobramos. Estos son nuestros compromisos contigo.
-            </p>
-          </div>
-        </Reveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {guarantees.map((g, i) => (
-            <Reveal key={i} width="100%">
-              <motion.div
-                whileHover={{ y: -4 }}
-                transition={{ type: "spring", stiffness: 300 }}
-                className="glass-card p-8 rounded-3xl border border-white/10 flex flex-col h-full group premium-border"
+            <div className="mt-8 pt-6 border-t border-white/10 text-center">
+              <Link
+                href="/auditoria-gratis?utm_source=terminal"
+                className="text-xs font-mono text-zinc-400 hover:text-[#00FF85] transition-colors inline-flex items-center gap-1.5"
               >
-                <div className="flex items-start justify-between mb-6">
-                  <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    {g.icon}
-                  </div>
-                  <span
-                    className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border"
-                    style={{ color: g.tagColor, borderColor: `${g.tagColor}40`, backgroundColor: `${g.tagColor}10` }}
-                  >
-                    {g.tag}
-                  </span>
-                </div>
-                <h3 className="text-2xl font-black text-white mb-3 font-display">{g.title}</h3>
-                <p className="text-gray-400 leading-relaxed flex-grow">{g.desc}</p>
-              </motion.div>
-            </Reveal>
-          ))}
-        </div>
-
-        {/* CTA inline */}
-        <Reveal width="100%">
-          <div className="mt-16 text-center">
-            <p className="text-gray-500 text-sm mb-6">¿Todo esto suena bien en papel? Compruébalo en persona.</p>
-            <a
-              href={CALENDAR_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 bg-[#00FF94] text-black px-10 py-5 rounded-2xl font-black text-lg hover:bg-[#00cc76] transition-all glow-effect shadow-[0_20px_50px_rgba(0,255,148,0.2)]"
-            >
-              <Calendar size={22} />
-              Agenda tu auditoría gratuita
-            </a>
+                ¿Quieres un informe técnico completo en PDF? → Solicitar aquí
+              </Link>
+            </div>
           </div>
         </Reveal>
       </div>
@@ -637,543 +897,207 @@ const TrustBlock = () => {
   );
 };
 
-const DemoShowcase = () => {
-  const [activeTab, setActiveTab] = useState<'realestate' | 'health' | 'resto' | 'hotels' | 'vacation'>('realestate');
-
-  const tabs = [
-    { id: 'realestate', label: 'Inmobiliaria' },
-    { id: 'health', label: 'Clínicas' },
-    { id: 'resto', label: 'Restaurantes' },
-    { id: 'hotels', label: 'Hoteles' },
-    { id: 'vacation', label: 'Pisos Turísticos' },
-  ] as const;
-
-  const chatData = {
-    realestate: [
-      { from: 'bot', text: '¡Hola! Soy el asistente inteligente de HecTech Real Estate. 🏠 ¿En qué puedo ayudarte hoy?' },
-      { from: 'user', text: 'Hola, busco un piso de 2 habitaciones en el centro.' },
-      { from: 'bot', text: 'Perfecto. Tengo 3 opciones exclusivas que no están en portales todavía. ¿Cuál es tu presupuesto mensual máximo?' },
-      { from: 'user', text: 'Unos 1200€ al mes.' },
-      { from: 'bot', text: 'Entendido. El de la calle Mayor encaja perfecto: 2 hab, terraza y 1150€. ¿Te gustaría ver un tour virtual o prefieres agendar una visita presencial para este viernes?' },
-      { from: 'user', text: 'Prefiero visita presencial el viernes.' },
-      { from: 'bot', text: 'Excelente elección. Tengo libre a las 10:30 o a las 17:00. ¿Cuál te viene mejor?' },
-      { from: 'bot', text: 'Una vez confirmes, te enviaré la ubicación exacta por WhatsApp automáticamente. 📍' },
-    ],
-    health: [
-      { from: 'bot', text: '🏥 Clínica HecTechAi. ¿Necesitas agendar una cita o tienes alguna duda sobre nuestros tratamientos?' },
-      { from: 'user', text: 'Quería info sobre el blanqueamiento dental.' },
-      { from: 'bot', text: 'Es uno de nuestros tratamientos más populares. Usamos tecnología láser de última generación para resultados en una sola sesión.' },
-      { from: 'bot', text: 'Para darte un presupuesto exacto y ver si eres apto, necesitamos una valoración gratuita de 10 minutos. ¿Te gustaría venir esta semana?' },
-      { from: 'user', text: 'Vale, ¿qué días tenéis libres?' },
-      { from: 'bot', text: 'Mañana jueves a las 16:00 o el viernes a las 09:30. ¿Cuál prefieres asignar a tu nombre?' },
-      { from: 'user', text: 'Viernes a las 9:30.' },
-      { from: 'bot', text: '¡Hecho! Te acabo de enviar un recordatorio con las indicaciones previas para la cita. ¡Nos vemos pronto! ✨' },
-    ],
-    resto: [
-      { from: 'bot', text: '🍔 ¡Bienvenido a GastroTech! ¿Buscas mesa para hoy o prefieres pedir para llevar con un 10% de descuento?' },
-      { from: 'user', text: 'Mesa para un grupo de 6 personas.' },
-      { from: 'bot', text: '¡Claro! ¿Para qué hora os gustaría venir?' },
-      { from: 'user', text: 'A las 21:30.' },
-      { from: 'bot', text: 'Para grupos de más de 4 personas, solemos recomendar el Salón VIP para mayor comodidad. ¿Te parece bien que os reserve allí?' },
-      { from: 'user', text: 'Sí, perfecto.' },
-      { from: 'bot', text: '¡Genial! Reserva confirmada para 6 personas a las 21:30. ✅' },
-      { from: 'bot', text: 'Como sugerencia del chef, hoy tenemos pulpo a la brasa fuera de carta. ¡Os guardo una ración si queréis probarlo! ¿O prefieres ver la carta completa ahora?' },
-    ],
-    hotels: [
-      { from: 'bot', text: '🏨 Bienvenido al Hotel HecTech Luxury. ¿Deseas consultar disponibilidad de habitaciones o necesitas asistencia con una reserva?' },
-      { from: 'user', text: 'Busco habitación doble para el próximo fin de semana.' },
-      { from: 'bot', text: 'Para las fechas del 2, 3 y 4 de mayo me quedan 2 Junior Suite con vistas al mar y una Habitación Premium. ¿Te gustaría ver fotos reales?' },
-      { from: 'user', text: 'Sí, por favor.' },
-      { from: 'bot', text: 'Aquí las tienes: [Enlace]. Además, si completas tu reserva por este chat, incluimos el desayuno buffet de cortesía. ☕ ¿Te reservo una?' },
-      { from: 'user', text: '¡Sí, la Premium!' },
-      { from: 'bot', text: 'Excelente elección. Ya he bloqueado la habitación. Te envío el enlace de pago seguro para confirmar en 2 minutos. 💳' },
-    ],
-    vacation: [
-      { from: 'bot', text: '🏙️ ¡Hola! Soy el asistente de HecTech Vacation Rentals. ¿Buscas un piso para tus próximas vacaciones?' },
-      { from: 'user', text: 'Sí, del 10 al 15 de julio en el centro.' },
-      { from: 'bot', text: 'Para esas fechas tengo el "Loft Sol" (a 2 min de la plaza) y el "Ático Gran Vía". Ambos con check-in autónomo. ¿Cuál prefieres?' },
-      { from: 'user', text: 'El Ático Gran Vía.' },
-      { from: 'bot', text: 'Es espectacular, tiene terraza privada. El precio total es de 750€. ¿Quieres que te envíe el enlace de reserva directa por WhatsApp? 📱' },
-      { from: 'user', text: 'Perfecto, envíamelo.' },
-      { from: 'bot', text: 'Enviado. Tienes 30 minutos para completar la reserva antes de que el calendario se libere de nuevo. ¡Disfruta de tu estancia! 🔑' },
-    ],
-  };
-
-  return (
-    <section id="demos" className="py-24 relative overflow-hidden text-white">
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#00FF94]/5 to-transparent pointer-events-none"></div>
-
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col lg:flex-row gap-16 items-center">
-
-          <div className="flex-1 w-full">
-            <Reveal width="100%">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 font-display">
-                Mira lo que la IA puede <br />
-                <span className="text-gradient hover:glow-text transition-all duration-500">hacer por tu sector</span>
-              </h2>
-              <p className="text-gray-400 mb-8 text-lg">
-                Selecciona tu industria y observa cómo un agente de IA maneja una conversación real.
-              </p>
-            </Reveal>
-
-            <Reveal width="100%">
-              <div className="flex flex-wrap gap-3">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as 'realestate' | 'health' | 'resto' | 'hotels' | 'vacation')}
-                    className={`px-5 py-3 rounded-full text-sm font-medium transition-all ${activeTab === tab.id
-                      ? 'bg-[#00FF94] text-black shadow-[0_0_20px_rgba(0,255,148,0.4)]'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/5'
-                      }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-
-          <div className="flex-1 w-full">
-            <Reveal width="100%">
-              <div className="glass-card rounded-2xl border border-white/10 overflow-hidden shadow-2xl relative premium-border">
-                <div className="bg-[#111] p-4 flex items-center justify-between border-b border-white/5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00FF94] to-blue-500 p-0.5">
-                      <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
-                        <Bot size={20} className="text-[#00FF94]" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm text-white font-display">Asistente HecTechAi</div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-green-500">En línea</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-black/40 h-[400px] p-6 overflow-y-auto custom-scrollbar flex flex-col gap-4">
-                  {chatData[activeTab].map((msg, idx) => (
-                    <div key={idx} className={`flex ${msg.from === 'user' ? 'justify-end' : 'justify-start'} animate-float`} style={{ animationDuration: '0.5s', animationFillMode: 'both', animationDelay: `${idx * 0.5}s`, animationName: 'slideIn' }}>
-                      <div className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${msg.from === 'user'
-                        ? 'bg-[#00C2FF]/20 text-white rounded-tr-sm border border-[#00C2FF]/20'
-                        : 'bg-[#222] text-gray-200 rounded-tl-sm border border-white/5'
-                        }`}>
-                        {msg.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="p-4 bg-[#111] border-t border-white/5 flex gap-3">
-                  <div className="flex-1 bg-white/5 rounded-full h-10 px-4 flex items-center text-gray-500 text-sm">
-                    Escribe un mensaje...
-                  </div>
-                  <div className="w-10 h-10 bg-[#00FF94] rounded-full flex items-center justify-center text-black">
-                    <ArrowRight size={18} />
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          </div>
-
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Services = () => {
-  return (
-    <section id="servicios" className="py-24 bg-[#050505]">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal width="100%">
-          <div className="mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white font-display">Nuestros Servicios</h2>
-            <p className="text-gray-400">Soluciones técnicas simplificadas para dueños de negocios.</p>
-          </div>
-        </Reveal>
-
-        <div className="bento-grid">
-          {/* Item 1: Large - Chatbots */}
-          <div className="bento-item-large premium-glass rounded-3xl p-10 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-30 transition-opacity">
-              <MessageSquare size={180} className="text-[#00FF94]" />
-            </div>
-            <div className="relative z-10 h-full flex flex-col">
-              <div className="w-16 h-16 bg-[#00FF94] rounded-2xl flex items-center justify-center mb-8 text-black shadow-[0_0_30px_rgba(0,255,148,0.5)]">
-                <Bot size={32} />
-              </div>
-              <h3 className="text-4xl font-black mb-4 text-white font-display">Agentes de Ventas 24/7</h3>
-              <p className="text-gray-400 text-lg max-w-xl mb-8 leading-relaxed">
-                Desarrollamos asistentes con lenguaje natural que no solo responden; <span className="text-white font-bold">persuaden y cierran citas</span>. Sistemas que aprenden de cada interacción para convertir más.
-              </p>
-              <div className="mt-auto">
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                  <p className="text-sm text-[#00FF94] font-bold uppercase tracking-widest mb-2">¿Cómo funciona?</p>
-                  <p className="text-gray-300">El agente responde al instante, califica leads según tus criterios y agenda citas en tu calendario. Sin que muevas un dedo, a cualquier hora del día.</p>
-                </div>
-                <a href="#contacto" className="mt-8 inline-flex items-center gap-3 text-[#00FF94] font-bold text-lg hover:gap-5 transition-all group/link">
-                  Quiero mi Agente <ArrowRight size={20} className="group-hover/link:translate-x-2 transition-transform" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Item 2: Wide - Automatización */}
-          <div className="bento-item-wide premium-glass rounded-3xl p-8 relative overflow-hidden group">
-            <div className="relative z-10 flex flex-col md:flex-row gap-8 items-center h-full">
-              <div className="w-20 h-20 bg-[#00C2FF] rounded-2xl flex items-center justify-center text-white shrink-0">
-                <Zap size={36} />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold mb-2 text-white">Full Automation Stack</h3>
-                <p className="text-gray-400 text-sm max-w-md">
-                  Conectamos n8n, Make y tus CRMs para que las tareas repetitivas mueran definitivamente. Zero fricción operativa.
-                </p>
-              </div>
-              <a href="#contacto" className="md:ml-auto bg-white/5 border border-white/10 p-4 rounded-full text-white hover:bg-[#00C2FF] hover:text-white transition-colors">
-                <ArrowRight size={24} />
-              </a>
-            </div>
-          </div>
-
-          {/* Item 3: Tall - CRM */}
-          <div className="bento-item-tall premium-glass rounded-3xl p-8 flex flex-col justify-between group border-white/5 hover:border-[#00FF94]/30 transition-colors">
-            <div>
-              <div className="w-14 h-14 bg-white/5 rounded-2xl flex items-center justify-center mb-6 text-[#00FF94]">
-                <Database size={28} />
-              </div>
-              <h3 className="text-2xl font-bold mb-3 text-white">Cerebros de Datos (RAG)</h3>
-              <p className="text-gray-400 text-sm">Convertimos tus PDFs y base de conocimientos en un oráculo privado para tu equipo y clientes.</p>
-            </div>
-            <div className="mt-8 bg-black/40 rounded-xl p-4 border border-white/5">
-              <div className="flex gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
-                <div className="w-2 h-2 rounded-full bg-green-400"></div>
-              </div>
-              <div className="text-[10px] font-mono text-gray-500">indexing doc_342.pdf...</div>
-              <div className="text-[10px] font-mono text-[#00FF94]">knowledge base updated!</div>
-            </div>
-          </div>
-
-          {/* Item 4: Small - Dashboards */}
-          <div className="premium-glass rounded-3xl p-8 flex flex-col justify-between group">
-            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-4 text-purple-400">
-              <BarChart3 size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-white">Metrics Hub</h3>
-            <p className="text-gray-400 text-xs">ROI en tiempo real de cada euro ahorrado.</p>
-          </div>
-
-          {/* Item 5: Small - Content */}
-          <div className="premium-glass rounded-3xl p-8 flex flex-col justify-between group">
-            <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-4 text-orange-400">
-              <PenTool size={24} />
-            </div>
-            <h3 className="text-xl font-bold text-white">Media AI</h3>
-            <p className="text-gray-400 text-xs">Contenido masivo con voz de marca.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const Process = () => {
-  const steps = [
-    { title: "Auditoría", desc: "Analizamos tu negocio en profundidad para identificar dónde pierdes más tiempo y dinero. En 48h tienes tu diagnóstico y plan de acción.", icon: <CheckCircle2 /> },
-    { title: "Implementación", desc: "Configuramos los agentes IA y automatizaciones a medida de tu sector, sin tecnicismos y con resultados desde el día 1.", icon: <Cpu /> },
-    { title: "Optimización", desc: "Monitoreamos resultados y ajustamos para maximizar conversiones. Si en las primeras 4 semanas no ves resultados, lo revisamos juntos sin coste adicional.", icon: <TrendingUp /> },
-  ];
-
-  return (
-    <section id="proceso" className="py-24 relative bg-[#0A0A0A]">
-      <div className="max-w-7xl mx-auto px-6">
-        <Reveal width="100%">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">Así funciona nuestra metodología<br /><span className="text-[#00FF94]">sin tecnicismos</span></h2>
-          </div>
-        </Reveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-0.5 bg-gradient-to-r from-transparent via-[#00FF94]/30 to-transparent z-0"></div>
-
-          {steps.map((step, index) => (
-            <Reveal key={index} width="100%">
-              <div className="relative z-10 flex flex-col items-center text-center">
-                <div className="w-24 h-24 bg-[#0A0A0A] border border-[#00FF94] rounded-full flex items-center justify-center text-[#00FF94] text-xl font-bold mb-6 shadow-[0_0_20px_rgba(0,255,148,0.2)]">
-                  {step.icon}
-                </div>
-                <div className="text-8xl font-black text-white/[0.05] absolute top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none pointer-events-none">
-                  {index + 1}
-                </div>
-                <h3 className="text-2xl font-bold mb-3 text-white">{step.title}</h3>
-                <p className="text-gray-400 max-w-xs">{step.desc}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
-const AboutUs = () => {
-  return (
-    <section id="sobre-nosotros" className="py-24 bg-[#050505] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <Reveal width="100%">
-            <div className="relative">
-              <div className="absolute -top-20 -left-20 w-64 h-64 bg-[#00FF94]/10 rounded-full blur-[100px]"></div>
-              <div className="relative glass-card p-1 rounded-3xl overflow-hidden border border-white/10 group premium-border">
-                <div className="aspect-[4/5] relative bg-[#111] rounded-[22px] overflow-hidden">
-                  <div className="absolute inset-0 flex items-center justify-center text-[#00FF94]/20">
-                    <Users size={120} />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-8">
-                    <p className="text-[#00FF94] font-bold text-sm tracking-widest uppercase mb-1">Fundador</p>
-                    <h3 className="text-3xl font-bold text-white font-display">Hector Barbera Sanchez</h3>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-
-          <div className="space-y-8">
-            <Reveal width="100%">
-              <div>
-                <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight font-display">
-                  Impulsando el futuro del <br />
-                  <span className="text-gradient">negocio local</span>
-                </h2>
-                <p className="text-gray-400 text-lg leading-relaxed">
-                  En <strong>HecTechAi</strong>, no solo implementamos tecnología; devolvemos el tiempo a quienes hacen que el mundo se mueva. Creé este proyecto porque vi cómo muchos dueños de negocios pasaban el fin de semana respondiendo emails en lugar de descansar. Mi misión es que la IA haga el trabajo aburrido por ti.
-                </p>
-              </div>
-            </Reveal>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Reveal width="100%">
-                <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-[#00FF94]/30 transition-colors h-full">
-                  <div className="w-10 h-10 bg-[#00FF94]/10 rounded-lg flex items-center justify-center text-[#00FF94] mb-4">
-                    <Rocket size={20} />
-                  </div>
-                  <h4 className="text-white font-bold mb-2">Misión</h4>
-                  <p className="text-sm text-gray-500">Transformar la operativa manual en sistemas autónomos de alto rendimiento.</p>
-                </div>
-              </Reveal>
-              <Reveal width="100%">
-                <div className="glass-card p-6 rounded-2xl border border-white/5 hover:border-[#00FF94]/30 transition-colors h-full">
-                  <div className="w-10 h-10 bg-[#00FF94]/10 rounded-lg flex items-center justify-center text-[#00FF94] mb-4">
-                    <ShieldCheck size={20} />
-                  </div>
-                  <h4 className="text-white font-bold mb-2">Compromiso</h4>
-                  <p className="text-sm text-gray-500">Soluciones éticas, seguras y diseñadas para durar a largo plazo.</p>
-                </div>
-              </Reveal>
-            </div>
-
-            <Reveal width="100%">
-              <div className="p-6 bg-white/5 rounded-2xl border-l-4 border-[#00FF94]">
-                <p className="text-gray-300 italic leading-relaxed">
-                  &quot;Mi misión es que la IA haga el trabajo aburrido para que tú te dediques a lo que realmente importa: hacer crecer tu empresa y disfrutar de tu tiempo.&quot;
-                </p>
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-};
-
+// --- INTERACTIVE ROI CALCULATOR ---
 const ROICalculator = () => {
-  const [employees, setEmployees] = useState(1);
-  const [hourlyRate, setHourlyRate] = useState(20);
-  const [hoursPerWeek, setHoursPerWeek] = useState(10);
+  const [employees, setEmployees] = useState(2);
+  const [hourlyRate, setHourlyRate] = useState(22);
+  const [hoursPerWeek, setHoursPerWeek] = useState(12);
 
   const monthlyLoss = Math.round(employees * hourlyRate * hoursPerWeek * 4.33);
   const annualLoss = monthlyLoss * 12;
-  const potentialSavings = Math.round(monthlyLoss * 0.7);
+  const potentialSavings = Math.round(monthlyLoss * 0.75);
 
   return (
-    <section id="roi-calculator" className="py-16 md:py-24 relative overflow-hidden bg-[#0A0A0A]">
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-[#00FF94]/20 to-transparent"></div>
+    <section id="roi-calculator" className="py-28 relative overflow-hidden bg-[#07070b]">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <div className="lg:col-span-6 space-y-8">
+            <div className="space-y-4">
+              <div className="swiss-tag">
+                <span className="w-2 h-2 rounded-full bg-[#FFB800]" />
+                CALCULADORA DE FUGA DE CAPITAL
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+                El Coste Real de <br />
+                <span className="text-gradient">No Automatizar Hoy</span>
+              </h2>
+              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+                Muchas empresas no son conscientes del capital que pierden en tareas mecánicas. Ajusta los parámetros y comprueba el impacto financiero directo.
+              </p>
+            </div>
 
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div>
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">Calcula el coste de <span className="text-gradient">no automatizar</span></h2>
-            <p className="text-gray-400 text-lg mb-12">
-              Muchas empresas no son conscientes del capital que pierden cada mes en tareas que una IA podría hacer por una fracción del coste. Ajusta los valores y descubre tu potencial de ahorro.
-            </p>
-
-            <div className="space-y-10">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-white">
-                  <label className="font-medium">Nº de empleados gestionando tareas manuales</label>
-                  <span className="text-[#00FF94] font-bold text-xl">{employees}</span>
+            <div className="space-y-8">
+              {/* Slider 1 */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm font-mono text-zinc-300">
+                  <span>Personas en tareas manuales / repetitivas:</span>
+                  <span className="text-[#00FF85] font-bold text-lg">{employees} empleados</span>
                 </div>
                 <input
-                  type="range" min="1" max="20" step="1"
+                  type="range"
+                  min="1"
+                  max="25"
+                  step="1"
                   value={employees}
                   onChange={(e) => setEmployees(parseInt(e.target.value))}
-                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00FF94]"
+                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00FF85]"
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-white">
-                  <label className="font-medium">Coste hora promedio (Sueldo + Impuestos)</label>
-                  <span className="text-[#00FF94] font-bold text-xl">{hourlyRate}€/h</span>
+              {/* Slider 2 */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm font-mono text-zinc-300">
+                  <span>Coste promedio empresa por hora:</span>
+                  <span className="text-[#00F2FF] font-bold text-lg">{hourlyRate}€ / hora</span>
                 </div>
                 <input
-                  type="range" min="10" max="100" step="5"
+                  type="range"
+                  min="10"
+                  max="80"
+                  step="2"
                   value={hourlyRate}
                   onChange={(e) => setHourlyRate(parseInt(e.target.value))}
-                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00FF94]"
+                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00F2FF]"
                 />
               </div>
 
-              <div className="space-y-4">
-                <div className="flex justify-between items-center text-white">
-                  <label className="font-medium">Horas perdidas / semana por empleado</label>
-                  <span className="text-[#00FF94] font-bold text-xl">{hoursPerWeek}h</span>
+              {/* Slider 3 */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center text-sm font-mono text-zinc-300">
+                  <span>Horas perdidas a la semana por empleado:</span>
+                  <span className="text-[#FFB800] font-bold text-lg">{hoursPerWeek} horas / semana</span>
                 </div>
                 <input
-                  type="range" min="2" max="40" step="2"
+                  type="range"
+                  min="2"
+                  max="35"
+                  step="1"
                   value={hoursPerWeek}
                   onChange={(e) => setHoursPerWeek(parseInt(e.target.value))}
-                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#00FF94]"
+                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[#FFB800]"
                 />
               </div>
             </div>
           </div>
 
-          <Reveal width="100%">
-            <div className="relative">
-              <div className="absolute inset-0 bg-[#00FF94]/10 blur-[100px] rounded-full"></div>
-              <div className="relative glass-card p-10 rounded-3xl border border-white/10 shadow-2xl premium-border">
-                <div className="space-y-8">
-                  <div>
-                    <p className="text-gray-400 text-sm uppercase tracking-widest font-bold mb-1">Pérdida mensual estimada</p>
-                    <div className="text-5xl md:text-7xl font-black text-white leading-none">
-                      {monthlyLoss.toLocaleString()}€
-                    </div>
+          <div className="lg:col-span-6">
+            <Reveal width="100%">
+              <div className="precision-glass p-8 md:p-10 rounded-3xl border border-white/10 shadow-2xl relative space-y-8">
+                <div>
+                  <div className="swiss-tag text-[10px] text-zinc-500">PÉRDIDA OPERATIVA MENSUAL</div>
+                  <div className="text-5xl sm:text-6xl font-black text-white font-mono mt-2 tracking-tight">
+                    {monthlyLoss.toLocaleString()}€
+                    <span className="text-xs text-zinc-500 font-normal"> / mes</span>
                   </div>
-
-                  <div className="h-[1px] bg-white/10 w-full"></div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                    <div>
-                      <p className="text-gray-500 text-xs uppercase font-bold mb-1">Fuga anual de capital</p>
-                      <p className="text-xl md:text-2xl font-bold text-gray-300">{annualLoss.toLocaleString()}€</p>
-                    </div>
-                    <div>
-                      <p className="text-[#00FF94] text-xs uppercase font-bold mb-1">Ahorro potencial IA</p>
-                      <p className="text-xl md:text-2xl font-bold text-[#00FF94]">{potentialSavings.toLocaleString()}€/mes</p>
-                    </div>
-                  </div>
-
-                  <div className="bg-[#00FF94]/10 p-6 rounded-2xl border border-[#00FF94]/20">
-                    <p className="text-sm text-[#00FF94] leading-relaxed">
-                      <strong>💡 Impacto Directo:</strong> Estás perdiendo aproximadamente el <strong>30% de tu productividad</strong> en tareas que una IA puede hacer por una fracción de ese coste. <strong>Eso es lo que cuesta no hacer nada.</strong>
-                    </p>
-                  </div>
-
-                  <a
-                    href={CALENDAR_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full text-center bg-[#00FF94] text-black font-bold py-4 rounded-xl hover:scale-[1.02] transition-transform"
-                  >
-                    <Calendar size={18} />
-                    Pedir mi diagnóstico gratuito de 15 min
-                  </a>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4 border-y border-white/10 py-6">
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-500 uppercase">Fuga Anual Estimada</div>
+                    <div className="text-2xl font-bold font-mono text-red-400 mt-1">
+                      {annualLoss.toLocaleString()}€
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono text-zinc-500 uppercase">Ahorro Mensual IA</div>
+                    <div className="text-2xl font-bold font-mono text-[#00FF85] mt-1">
+                      +{potentialSavings.toLocaleString()}€
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-[#00FF85]/10 border border-[#00FF85]/20 text-xs text-zinc-300 leading-relaxed">
+                  <strong className="text-[#00FF85]">Conclusión Técnica:</strong> Automatizar estas tareas libera aproximadamente un <strong className="text-white">35% de margen operativo</strong> neto para tu empresa.
+                </div>
+
+                <a
+                  href={CALENDAR_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-high-ticket w-full py-4 rounded-xl text-sm flex items-center justify-center gap-2"
+                >
+                  <Calendar size={18} />
+                  <span>Detener Esta Fuga de Capital</span>
+                </a>
               </div>
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
+
         </div>
       </div>
     </section>
   );
 };
 
+// --- FAQ ACCORDION ---
 const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const faqs = [
     {
-      q: "¿Qué es exactamente la automatización con IA?",
-      a: "Es el uso de modelos de lenguaje avanzados (como Claude de Anthropic y Gemini de Google) e integraciones de software para realizar tareas repetitivas de forma autónoma. Desde responder clientes por WhatsApp hasta gestionar facturas y agendar citas sin intervención humana."
+      q: '¿Qué diferencia a HecTechAi de otras agencias tradicionales?',
+      a: 'No cobramos por horas de diseño web genérico ni instalamos plantillas WordPress. Construimos ingeniería cinemática en Next.js, conectamos agentes de voz en tiempo real con Vapi y desplegamos enjambres multi-tenant integrados en Supabase que reducen costes operativos de forma inmediata.',
     },
     {
-      q: "¿Es compatible con las herramientas que ya utilizo?",
-      a: "Sí. Nos integramos con WhatsApp, Gmail, Google Calendar, Shopify, Instagram, CRM y más de 1.000 aplicaciones a través de plataformas líderes como n8n y Make."
+      q: '¿Cómo garantizáis la privacidad de las conversaciones y clientes?',
+      a: 'Tus datos nunca se utilizan para reentrenar modelos de IA públicos. Implementamos conexiones directas cifradas de extremo a extremo, con esquemas Supabase aislados mediante Row Level Security (RLS) por cada inquilino empresarial.',
     },
     {
-      q: "¿Cuánto tiempo se tarda en ver resultados?",
-      a: "Los resultados suelen ser inmediatos tras la implementación. El ahorro de tiempo se nota desde el primer día y el retorno de la inversión (ROI) suele completarse en menos de 3 meses."
+      q: '¿Qué sucede si un agente de voz o WhatsApp no entiende una consulta?',
+      a: 'Nuestros sistemas integran un protocolo de triaje en 3 niveles. Cuando la IA detecta ambigüedad o una situación compleja, escala inmediatamente la conversación a un operador humano vía Telegram/WhatsApp con el contexto y la transcripción completa.',
     },
     {
-      q: "¿Mi negocio es demasiado pequeño para la IA?",
-      a: "Al contrario, la IA es el gran igualador. Permite que negocios locales y autónomos operen con la eficiencia de una gran corporación sin necesidad de contratar más personal."
+      q: '¿Cuánto tiempo lleva poner en marcha un agente o portal web?',
+      a: 'Un agente de voz o chatbot de WhatsApp se despliega habitualmente en 72 a 96 horas tras la auditoría inicial. Una plataforma web cinemática completa de HecSite se entrega en 10 a 14 días laborables lista para convertir.',
     },
     {
-      q: "¿Cómo garantizáis la seguridad de mis datos?",
-      a: "La privacidad es nuestra prioridad. Usamos conexiones seguras y cifradas. Nunca utilizamos los datos de tu negocio para entrenar modelos de IA públicos externos."
+      q: '¿Existe algún tipo de permanencia o cláusula de permanencia?',
+      a: 'Ninguna. El retainer mensual es libre y se puede rescindir en cualquier momento. Creemos en retener a nuestros clientes mediante el valor financiero y el ahorro que generamos mensualmente, no mediante contratos forzados.',
     },
-    {
-      q: "¿Qué pasa si la IA se equivoca?",
-      a: "Nuestras implementaciones incluyen filtros de seguridad y sistemas de supervisión. Además, siempre configuramos opciones para que un humano pueda intervenir fácilmente si la IA detecta una consulta compleja."
-    }
   ];
 
   return (
-    <section id="faq" className="py-24 bg-[#050505]">
-      <div className="max-w-3xl mx-auto px-6">
+    <section id="faq" className="py-28 bg-[#050507]">
+      <div className="max-w-4xl mx-auto px-6">
         <Reveal width="100%">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white font-display">Preguntas Frecuentes</h2>
-            <p className="text-gray-400">Todo lo que necesitas saber para dar el paso hacia la automatización.</p>
+          <div className="text-center mb-16 space-y-4">
+            <div className="swiss-tag justify-center">
+              <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+              RESOLUCIÓN DE DUDAS OPERATIVAS
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+              Preguntas Frecuentes
+            </h2>
+            <p className="text-zinc-400 text-sm md:text-base">
+              Todo lo que necesitas saber antes de dar el salto a la automatización empresarial.
+            </p>
           </div>
         </Reveal>
 
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <Reveal key={index} width="100%">
-              <div className="glass-card rounded-2xl overflow-hidden border border-white/5">
+              <div className="precision-glass rounded-2xl overflow-hidden border border-white/5">
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="w-full p-6 text-left flex justify-between items-center hover:bg-white/5 transition-colors"
+                  className="w-full p-6 text-left flex justify-between items-center hover:bg-white/[0.02] transition-colors cursor-pointer"
                 >
-                  <span className="text-lg font-bold text-white">{faq.q}</span>
-                  <div className={`transition-transform duration-300 ${openIndex === index ? 'rotate-180' : ''}`}>
-                    {openIndex === index ? (
-                      <Minus size={20} className="text-[#00FF94]" />
-                    ) : (
-                      <Plus size={20} className="text-gray-500" />
-                    )}
+                  <span className="text-base sm:text-lg font-bold text-white font-display">{faq.q}</span>
+                  <div className="text-zinc-400 ml-4">
+                    {openIndex === index ? <Minus size={18} className="text-[#00FF85]" /> : <Plus size={18} />}
                   </div>
                 </button>
                 <motion.div
                   initial={false}
                   animate={{
                     height: openIndex === index ? 'auto' : 0,
-                    opacity: openIndex === index ? 1 : 0
+                    opacity: openIndex === index ? 1 : 0,
                   }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  transition={{ duration: 0.3, ease: 'easeInOut' }}
                   className="overflow-hidden"
                 >
-                  <div className="p-6 pt-0 text-gray-400 leading-relaxed border-t border-white/5">
+                  <div className="p-6 pt-0 text-zinc-400 text-sm leading-relaxed border-t border-white/5 font-sans">
                     {faq.a}
                   </div>
                 </motion.div>
@@ -1186,127 +1110,224 @@ const FAQ = () => {
   );
 };
 
-const Footer = () => {
+// --- CONTACT SECTION ---
+const ContactSection = () => {
   return (
-    <footer className="bg-[#020202] pt-24 pb-12 border-t border-white/5">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="contacto" className="py-28 px-6 relative bg-[#07070a]">
+      <div className="max-w-4xl mx-auto precision-glass p-8 md:p-14 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="text-center mb-10 space-y-3">
+          <div className="swiss-tag justify-center">
+            <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+            CONVERSACIÓN DIRECTA
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+            ¿Hablamos 15 Minutos? <br />
+            <span className="text-gradient">Sin Presión de Venta</span>
+          </h2>
+          <p className="text-zinc-400 text-sm sm:text-base max-w-xl mx-auto">
+            Cuéntanos cómo funciona tu operativa hoy. Te diremos con total transparencia si la automatización es adecuada para tu caso.
+          </p>
+        </div>
 
-        <div className="bg-gradient-to-b from-[#111] to-black border border-white/10 rounded-3xl p-12 text-center relative overflow-hidden mb-24">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00FF94] to-transparent"></div>
-          <div className="relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-white">¿Listo para el futuro?</h2>
-            <p className="text-gray-400 text-lg mb-8 max-w-xl mx-auto">
-              Deja de perder tiempo en tareas repetitivas. Empieza a escalar tu negocio hoy mismo.
+        {/* Option 1: Direct Calendar */}
+        <div className="flex flex-col items-center mb-12">
+          <a
+            href={CALENDAR_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-high-ticket flex items-center gap-3 px-10 py-5 rounded-2xl text-base shadow-2xl"
+          >
+            <Calendar size={20} />
+            <span>Reservar Directamente en Google Calendar</span>
+          </a>
+          <span className="text-zinc-500 text-xs font-mono mt-3">
+            Elige tu franja horaria · Gratuito · Sin compromiso
+          </span>
+        </div>
+
+        {/* Divider */}
+        <div className="flex items-center gap-4 mb-10">
+          <div className="flex-1 h-[1px] bg-white/10" />
+          <span className="swiss-tag text-[10px]">O ESCRÍBENOS UN MENSAJE</span>
+          <div className="flex-1 h-[1px] bg-white/10" />
+        </div>
+
+        {/* Contact Form */}
+        <ContactForm />
+      </div>
+    </section>
+  );
+};
+
+// --- FOOTER ---
+const Footer = ({ onOpenCalendar }: { onOpenCalendar: () => void }) => {
+  return (
+    <footer className="bg-[#030305] pt-24 pb-12 border-t border-white/[0.08]">
+      <div className="max-w-7xl mx-auto px-6">
+        
+        {/* High Ticket Final Banner */}
+        <div className="precision-glass rounded-3xl p-10 md:p-16 text-center relative overflow-hidden mb-20 border border-white/10">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00FF85] to-transparent" />
+          <div className="relative z-10 space-y-6 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tight">
+              ¿Listo para Escalar sin Fricción?
+            </h2>
+            <p className="text-zinc-400 text-base leading-relaxed">
+              Deja de perder clientes potenciales y recupera el control de tu agenda con sistemas autónomos de élite.
             </p>
-            <a href={CALENDAR_URL} target="_blank" rel="noopener noreferrer" className="bg-[#00FF94] text-black text-xl font-bold px-12 py-5 rounded-lg hover:scale-105 transition-transform duration-200 shadow-[0_0_40px_rgba(0,255,148,0.4)] inline-block">
-              Reserva tu Auditoría Gratis Ahora
-            </a>
+            <button
+              onClick={onOpenCalendar}
+              className="btn-high-ticket inline-flex items-center gap-2 px-10 py-5 rounded-2xl text-base cursor-pointer"
+            >
+              <Calendar size={18} />
+              <span>Agendar mi Auditoría 360°</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2 font-bold text-2xl tracking-tighter text-white">
+        {/* Bottom Info Row */}
+        <div className="flex flex-col md:flex-row justify-between items-center gap-8 pt-8 border-t border-white/5">
+          <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
               alt="HecTechAi Logo"
-              width={32}
-              height={32}
-              className="object-contain transition-all opacity-80 hover:opacity-100"
+              width={34}
+              height={34}
+              className="object-contain opacity-90"
               style={{ mixBlendMode: 'screen' }}
             />
-            <div className="hidden md:flex items-center gap-2 font-display">
-              <span>Hec<span className="text-[#00FF94]">TechAi</span></span>
+            <div className="font-display font-black text-xl text-white tracking-tighter">
+              Hec<span className="text-[#00FF85]">TechAi</span>
             </div>
           </div>
 
-          <div className="flex gap-8 text-sm text-gray-400">
-            <a href="#servicios" className="hover:text-white transition-colors">Servicios</a>
-            <a href="#sobre-nosotros" className="hover:text-white transition-colors">Sobre nosotros</a>
+          <div className="flex flex-wrap justify-center gap-6 text-xs font-mono text-zinc-400">
+            <a href="#servicios" className="hover:text-white transition-colors">4 Motores Core</a>
+            <a href="#sobre-nosotros" className="hover:text-white transition-colors">Filosofía</a>
             <a href="/privacidad" className="hover:text-white transition-colors">Privacidad</a>
             <a href="/legal" className="hover:text-white transition-colors">Aviso Legal</a>
-            <a href="/terms" className="hover:text-white transition-colors">Términos y Condiciones</a>
-            <a href="/dashboard" className="text-[#00FF94] font-bold hover:brightness-125 transition-all">Acceso Clientes</a>
+            <a href="/terms" className="hover:text-white transition-colors">Términos</a>
+            <Link href="/dashboard" className="text-[#00FF85] hover:underline font-bold">
+              Acceso Clientes
+            </Link>
           </div>
 
-          <div className="flex gap-4 text-white">
+          <div className="flex items-center gap-3">
             <a
               href="https://instagram.com/hectechai"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#00FF94] hover:text-black transition-all cursor-pointer"
-              title="Instagram"
+              className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:border-[#00FF85]/40 transition-colors"
+              aria-label="Instagram"
             >
-              <Instagram size={18} />
+              <Instagram size={16} />
             </a>
             <a
               href="mailto:hectechia@gmail.com"
-              className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#00FF94] hover:text-black transition-all cursor-pointer"
-              title="Email"
+              className="w-9 h-9 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:border-[#00FF85]/40 transition-colors"
+              aria-label="Email"
             >
-              <Mail size={18} />
+              <Mail size={16} />
             </a>
           </div>
         </div>
 
-        <div className="text-center text-gray-600 text-xs mt-12">
-          © {new Date().getFullYear()} HecTechAi Automation Agency. Todos los derechos reservados.
+        {/* Swiss Status & Copyright */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-zinc-600 text-[11px] font-mono mt-10 pt-6 border-t border-white/5">
+          <div>
+            © {new Date().getFullYear()} HecTechAi Automation Agency. Todos los derechos reservados.
+          </div>
+          <div className="flex items-center gap-2 text-zinc-400">
+            <span className="w-2 h-2 rounded-full bg-[#00FF85] inline-block" />
+            <span>ALL SYSTEMS OPERATIONAL · SITGES &amp; GLOBAL</span>
+          </div>
         </div>
+
       </div>
     </footer>
   );
 };
 
+// --- MAIN HOME COMPONENT ---
 export default function Home() {
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#00FF94] selection:text-black">
-      <Navbar />
-      <Hero />
+    <div className="min-h-screen bg-[#050507] text-white font-sans selection:bg-[#00FF85] selection:text-black">
+      <Navbar onOpenCalendar={() => setIsCalendarModalOpen(true)} />
+      <Hero onOpenCalendar={() => setIsCalendarModalOpen(true)} />
+      <EngineeringTelemetry />
       <Benefits />
+      <BentoGrid />
       <Process />
       <TrustBlock />
       <AboutUs />
-      <DemoShowcase />
-      <SmartAudit />
-      <Services />
-      <ROICalculator />
-      <FAQ />
+      
+      {/* Live Demo Framed Showcase */}
+      <section id="demos" className="py-28 bg-[#050507] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <Reveal width="100%">
+            <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+              <div className="swiss-tag justify-center">
+                <span className="w-2 h-2 rounded-full bg-[#00FF85]" />
+                DEMOS INTERACTIVAS POR SECTOR
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white font-display tracking-tighter">
+                Experimenta el Enjambre <br />
+                <span className="text-gradient">En Tiempo Real</span>
+              </h2>
+              <p className="text-zinc-400 text-base">
+                Interactúa con los asistentes simulados para clínicas, inmobiliarias y hostelería.
+              </p>
+            </div>
+          </Reveal>
 
-      {/* Contact Section */}
-      <section id="contacto" className="w-full py-24 px-6 md:px-24 bg-[#0A0A0A]">
-        <div className="max-w-4xl mx-auto glass-card p-12 rounded-3xl border border-white/10">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">¿Hablamos 15 minutos?<br /><span className="text-gradient">Sin pitch de ventas.</span></h2>
-            <p className="text-gray-400 max-w-xl mx-auto mt-4">
-              Cuéntanos cómo funciona tu empresa hoy. Te diremos honestamente si la IA tiene sentido para vosotros — y si no es el caso, también te lo decimos.
-            </p>
-          </div>
+          {/* Sandbox Real WhatsApp Banner */}
+          <Reveal width="100%">
+            <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-[#00FF85]/10 via-[#00F2FF]/10 to-transparent border border-[#00FF85]/20 flex flex-col md:flex-row items-center justify-between gap-6 mb-12 backdrop-blur-xl">
+              <div className="space-y-2 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 text-xs font-mono text-[#00FF85] uppercase tracking-wider font-bold">
+                  <Sparkles size={14} /> Prueba en tu Propio Teléfono
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold font-display text-white">
+                  ¿Prefieres comprobar la velocidad en WhatsApp Real?
+                </h3>
+                <p className="text-xs md:text-sm text-zinc-400 max-w-xl">
+                  Envía la palabra <strong className="text-white">&quot;DEMO&quot;</strong> a nuestro WhatsApp oficial y reserva una mesa o cita simulada en 30 segundos.
+                </p>
+              </div>
+              <a
+                href="https://wa.me/34654551635?text=DEMO"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-high-ticket whitespace-nowrap px-8 py-4 rounded-xl text-sm font-bold flex items-center gap-3 shadow-lg"
+              >
+                <span>Chatear por WhatsApp</span>
+                <ArrowRight size={16} />
+              </a>
+            </div>
+          </Reveal>
 
-          {/* Opción rápida: ir directo al calendario */}
-          <div className="flex flex-col items-center mb-10">
-            <a
-              href={CALENDAR_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 bg-[#00FF94] text-black px-8 py-4 rounded-xl font-bold text-lg glow-effect hover:scale-105 transition-transform"
-            >
-              <Calendar size={22} />
-              Reservar en Google Calendar
-            </a>
-            <p className="text-gray-600 text-xs mt-3">Elige el hueco que más te convenga · Gratuito · Sin compromiso</p>
-          </div>
-
-          <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-[1px] bg-white/10"></div>
-            <span className="text-gray-600 text-xs uppercase tracking-widest font-bold">O si prefieres, escríbenos</span>
-            <div className="flex-1 h-[1px] bg-white/10"></div>
-          </div>
-
-          <ContactForm />
+          <Reveal width="100%">
+            <div className="precision-glass rounded-3xl p-4 md:p-8 border border-white/10 shadow-2xl">
+              <LiveDemo />
+            </div>
+          </Reveal>
         </div>
       </section>
-      <FloatingCTA />
 
-      <Footer />
+      <SmartAudit />
+      <ROICalculator />
+      <FAQ />
+      <ContactSection />
+      <FloatingCTA onOpenCalendar={() => setIsCalendarModalOpen(true)} />
+      <Footer onOpenCalendar={() => setIsCalendarModalOpen(true)} />
+
+      {/* Global Pre-Calendar Modal */}
+      <PreCalendarModal
+        isOpen={isCalendarModalOpen}
+        onClose={() => setIsCalendarModalOpen(false)}
+      />
     </div>
   );
 }

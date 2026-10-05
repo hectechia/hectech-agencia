@@ -51,7 +51,7 @@ export async function POST(req: Request) {
         const text = response.text();
 
         return NextResponse.json({ draft: text });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error generating draft:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }

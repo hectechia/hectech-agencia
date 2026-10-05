@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Camera, Sparkles, Loader2, Monitor, AlertCircle, ArrowRight } from 'lucide-react';
-import { generateVisualAuditAction } from '../app/actions';
+import { generateVisualAuditAction } from '@/app/actions';
 
 export function VisualAudit() {
     const [url, setUrl] = useState('');
@@ -91,6 +91,7 @@ export function VisualAudit() {
                             <Monitor size={14} /> Captura detectada
                         </h4>
                         <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl group">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                                 src={result.screenshot}
                                 alt="Capture"

@@ -25,15 +25,15 @@ export function ContactForm() {
 
     return (
         <form action={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input name="name" type="text" placeholder="¿Cómo te llamas?" required className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-primary transition-colors h-14 text-white placeholder-slate-500" />
-            <input name="email" type="email" placeholder="Tu mejor email (para no hacerte spam)" required className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-primary transition-colors h-14 text-white placeholder-slate-500" />
-            <input name="phone" type="text" placeholder="Teléfono" className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-primary transition-colors h-14 md:col-span-2 text-white placeholder-slate-500" />
-            <textarea name="message" placeholder="Cuéntanos brevemente qué proceso te quita más tiempo ahora mismo..." required className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-primary transition-colors h-32 md:col-span-2 resize-none text-white placeholder-slate-500"></textarea>
+            <input name="name" type="text" placeholder="¿Cómo te llamas?" required minLength={2} className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-[#00FF94] transition-colors h-14 text-white placeholder-slate-500" />
+            <input name="email" type="email" placeholder="Tu mejor email (para no hacerte spam)" required className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-[#00FF94] transition-colors h-14 text-white placeholder-slate-500" />
+            <input name="phone" type="tel" placeholder="Teléfono" className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-[#00FF94] transition-colors h-14 md:col-span-2 text-white placeholder-slate-500" />
+            <textarea name="message" placeholder="Cuéntanos brevemente qué proceso te quita más tiempo ahora mismo..." required minLength={10} className="bg-white/5 border border-white/10 p-4 rounded-xl focus:outline-none focus:border-[#00FF94] transition-colors h-32 md:col-span-2 resize-none text-white placeholder-slate-500"></textarea>
 
             <button
                 type="submit"
                 disabled={status === 'submitting'}
-                className="md:col-span-2 py-4 bg-primary text-black font-bold rounded-xl text-lg glow-effect mt-4 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
+                className="md:col-span-2 py-4 bg-[#00FF94] text-black font-bold rounded-xl text-lg glow-effect mt-4 disabled:opacity-50 disabled:cursor-wait hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer"
             >
                 {status === 'submitting' ? 'Enviando...' : 'Solicitar mi consultoría gratis'}
             </button>

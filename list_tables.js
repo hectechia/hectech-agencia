@@ -1,8 +1,8 @@
-
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = 'https://yafprrydilhktdxduotq.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZnBycnlkaWxoa3RkeGR1b3RxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzQ2NjIyNywiZXhwIjoyMDgzMDQyMjI3fQ.zbetrLmYdKj7Y4tEK3kKpnbN3soEPhf8Inlt6FF7ga8';
+const supabaseUrl = 'https://cqhhzaogzztklitwivky.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxaGh6YW9nenp0a2xpdHdpdmt5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTI3NjcxMiwiZXhwIjoyMDk2ODUyNzEyfQ.2srwyVcU8I8h32ZMLipaIHJ-1fZvvIfVCu8TOHmNQFQ';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 

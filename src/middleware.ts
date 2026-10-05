@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export function middleware(_request: NextRequest) {
     // Proteger la ruta /dashboard
     // TODO: Implementar validación de sesión de Supabase correctamente.
     // Por ahora, confiamos en la validación del lado del cliente en dashboard/page.tsx

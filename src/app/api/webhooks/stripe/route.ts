@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { stripe } from '@/lib/stripe';
+import { stripe } from '@/adapters/stripe';
 import type Stripe from 'stripe';
 
 export async function POST(req: Request) {
@@ -25,11 +25,11 @@ export async function POST(req: Request) {
 
     if (event.type === 'checkout.session.completed') {
         const customerEmail = session.customer_details?.email;
-        const customerName = session.customer_details?.name || 'Cliente';
+        const _customerName = session.customer_details?.name || 'Cliente';
         const amountTotal = (session.amount_total || 0) / 100;
 
         // Datos para el "Contrato"
-        const contractData = {
+        const _contractData = {
             version: "1.0",
             accepted_at: new Date().toISOString(),
             ip_address: session.customer_details?.address || 'IP_NOT_AVAILABLE', // Stripe a veces no da la IP directa aquí, pero usamos la dirección como proxy de ubicación

@@ -1,29 +1,25 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
 export const metadata: Metadata = {
-  title: "HecTechAi | Automatización con IA para Negocios Locales",
-  description: "Ahorra +15 horas semanales y aumenta tus ventas un 40% con chatbots inteligentes y automatización IA. Auditoría gratuita. Atención 24/7 para tu negocio.",
+  title: "Agencia de Automatización IA y Desarrollo Web | HecTechAi",
+  description: "Elimina tareas repetitivas, reduce costes operativos y ahorra +15h semanales. Implementamos agentes IA de ventas, recepcionistas virtuales y desarrollo web premium.",
   keywords: [
-    "automatización con IA",
-    "chatbots inteligentes",
-    "automatización negocios",
-    "IA para empresas",
-    "n8n automatización",
-    "chatbot WhatsApp",
-    "agencia IA España",
-    "automatización procesos",
-    "inteligencia artificial negocios",
-    "consultoría IA"
+    "agencia automatización IA",
+    "agentes IA ventas",
+    "recepcionista virtual IA",
+    "desarrollo web premium",
+    "automatizar mensajes whatsapp business",
+    "chatbots para clínicas y restaurantes",
+    "reducir costes operativos",
+    "ahorrar tiempo en mi empresa",
+    "crm automatizado",
+    "agencia n8n españa",
+    "sistemas ia para empresas Sitges",
+    "automatizacion Sitges Garraf"
   ],
-  authors: [{ name: "HecTechAi" }],
-  creator: "HecTechAi Automation Agency",
+  authors: [{ name: "Héctor Barberá" }],
+  creator: "HecTechAi Automation",
   publisher: "HecTechAi",
   robots: {
     index: true,
@@ -36,21 +32,21 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  alternates: {
+    canonical: 'https://hectechai.com',
+  },
   openGraph: {
     type: 'website',
     locale: 'es_ES',
     url: 'https://hectechai.com',
-    title: 'HecTechAi | Automatización con IA para Negocios',
-    description: 'Ahorra +15 horas semanales con chatbots inteligentes y automatización IA. Auditoría gratuita.',
+    title: 'Automatización Inteligente y Web Premium | HecTechAi',
+    description: 'Delega el trabajo manual en nuestra IA y multiplica tus ventas 24/7. Auditoría gratuita.',
     siteName: 'HecTechAi',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'HecTechAi | Automatización con IA',
-    description: 'Ahorra +15 horas semanales con IA. Auditoría gratuita.',
-  },
-  verification: {
-    google: 'google-site-verification-code',
+    title: 'HecTechAi | Menos Operativa, Más Ventas',
+    description: 'Automatizamos las tareas repetitivas de tu negocio con Inteligencia Artificial.',
   },
   icons: {
     icon: [
@@ -64,6 +60,69 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "HecTechAi Automation",
+  "url": "https://hectechai.com",
+  "logo": "https://hectechai.com/logo.png",
+  "description": "Agencia de automatización con IA y desarrollo web high-ticket. Implementamos agentes IA de WhatsApp, recepcionistas virtuales de voz y automatización n8n.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Sitges",
+    "addressRegion": "Barcelona",
+    "addressCountry": "ES"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": "41.2372",
+    "longitude": "1.8105"
+  },
+  "areaServed": ["Sitges", "Garraf", "Barcelona", "España", "Internacional"],
+  "priceRange": "$$",
+  "email": "hectechia@gmail.com",
+  "sameAs": [
+    "https://instagram.com/hectechai"
+  ],
+  "makesOffer": [
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Agentes IA de WhatsApp & Voz 24/7"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Desarrollo Web & Apps High-Ticket"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "SaaS de Reservas & CRM Integrado"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Consultoría & Auditorías IA"
+      }
+    },
+    {
+      "@type": "Offer",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Sistemas RAG para Empresas"
+      }
+    }
+  ]
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,10 +130,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="font-sans antialiased">
         {children}
       </body>
     </html>

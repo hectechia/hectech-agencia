@@ -3,13 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import {
     Users,
-    Activity,
     ShieldCheck,
     Loader2,
     ArrowLeft,
-    TrendingUp,
     CheckCircle2,
-    AlertCircle,
     Zap,
     ExternalLink,
     RefreshCw
@@ -40,7 +37,6 @@ export default function AdminPage() {
     const [password, setPassword] = useState('');
     const [verifying, setVerifying] = useState(false);
     const [clients, setClients] = useState<ClientProfile[]>([]);
-    const [isAdmin, setIsAdmin] = useState(false);
     const [stats, setStats] = useState({
         totalClients: 0,
         activeDeployments: 0,
@@ -67,7 +63,6 @@ export default function AdminPage() {
                 return;
             }
 
-            setIsAdmin(true);
             setLoading(false);
         }
         checkAdminAndFetch();
@@ -89,7 +84,7 @@ export default function AdminPage() {
             } else {
                 alert('Clave incorrecta. Acceso denegado.');
             }
-        } catch (err) {
+        } catch {
             alert('Error de conexión');
         } finally {
             setVerifying(false);
@@ -110,8 +105,8 @@ export default function AdminPage() {
                 .order('created_at', { ascending: false });
 
             if (fallbackData) {
-                const clientsOnly = fallbackData.filter(p => !p.is_admin);
-                setClients(clientsOnly as any);
+                const clientsOnly = (fallbackData as ClientProfile[]).filter(p => !p.is_admin);
+                setClients(clientsOnly);
                 setStats({
                     totalClients: clientsOnly.length,
                     activeDeployments: clientsOnly.filter(c => c.status === 'live').length,
@@ -123,12 +118,12 @@ export default function AdminPage() {
 
         if (profilesData) {
             // La función RPC ya filtra por permisos de admin internamente, pero filtramos por si acaso
-            const clientsOnly = profilesData.filter((p: any) => !p.is_admin);
+            const clientsOnly = (profilesData as ClientProfile[]).filter((p) => !p.is_admin);
             setClients(clientsOnly);
             setStats({
                 totalClients: clientsOnly.length,
-                activeDeployments: clientsOnly.filter((c: any) => c.status === 'live').length,
-                pendingSetup: clientsOnly.filter((c: any) => c.status === 'building').length
+                activeDeployments: clientsOnly.filter((c) => c.status === 'live').length,
+                pendingSetup: clientsOnly.filter((c) => c.status === 'building').length
             });
         }
     };
@@ -140,7 +135,7 @@ export default function AdminPage() {
             .eq('id', clientId);
 
         if (!error) {
-            setClients(clients.map(c => c.id === clientId ? { ...c, status: newStatus as any } : c));
+            setClients(clients.map(c => c.id === clientId ? { ...c, status: newStatus as ClientProfile['status'] } : c));
             alert('Estado actualizado con éxito');
         } else {
             console.error(error);

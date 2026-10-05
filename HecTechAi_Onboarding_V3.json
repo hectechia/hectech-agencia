@@ -82,7 +82,7 @@
         {
             "parameters": {
                 "method": "POST",
-                "url": "https://yafprrydilhktdxduotq.supabase.co/auth/v1/admin/users",
+                "url": "https://cqhhzaogzztklitwivky.supabase.co/auth/v1/admin/users",
                 "authentication": "genericCredentialType",
                 "genericAuthType": "headerAuth",
                 "sendBody": true,
