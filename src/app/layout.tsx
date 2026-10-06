@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Agencia de Automatización IA y Desarrollo Web | HecTechAi",
-  description: "Elimina tareas repetitivas, reduce costes operativos y ahorra +15h semanales. Implementamos agentes IA de ventas, recepcionistas virtuales y desarrollo web premium.",
+  description: "Automatización con IA para negocios locales del Garraf: agentes de WhatsApp y voz, recepcionistas virtuales y webs rápidas. Auditoría gratuita para medir cuántas horas puedes ahorrar.",
   keywords: [
     "agencia automatización IA",
     "agentes IA ventas",

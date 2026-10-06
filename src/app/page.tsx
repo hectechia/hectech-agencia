@@ -326,7 +326,7 @@ const Hero = ({ onOpenCalendar }: { onOpenCalendar: () => void }) => {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-white/[0.08]">
             {[
               { label: 'Disponibilidad', value: '24/7/365', accent: '#00FF85' },
-              { label: 'Latencia Red', value: '< 42ms', accent: '#00F2FF' },
+              { label: 'Infraestructura', value: 'n8n propio', accent: '#00F2FF' },
               { label: 'Auditoría Inicial', value: '0€ Sin Riesgo', accent: '#00FF85' },
               { label: 'Permanencia', value: '0 Días (Libre)', accent: '#FFB800' },
             ].map((metric, i) => (
@@ -377,15 +377,15 @@ const Hero = ({ onOpenCalendar }: { onOpenCalendar: () => void }) => {
 // --- ENGINEERING TELEMETRY MARQUEE ---
 const EngineeringTelemetry = () => {
   const items = [
-    '+120.000 SOLICITUDES PROCESADAS',
-    'LATENCIA MEDIA < 480MS',
-    '99.98% UPTIME INFRAESTRUCTURA',
-    '0 CITAS PERDIDAS EN FESTIVOS',
+    'N8N AUTOALOJADO EN SERVIDOR PROPIO',
+    'APROBACIÓN HUMANA ANTES DE ENVIAR',
+    'WHATSAPP · TELEGRAM · EMAIL',
+    'DATOS AISLADOS POR CLIENTE',
     'ORQUESTACIÓN N8N EMPRESARIAL',
     'MULTI-TENANT SUPABASE RLS',
     'SSR NEXT.JS 16 TURBOPACK',
-    'VOZ VAPI ULTRA-LOW LATENCY',
-    'CACHE DE PROMPTS OPTIMIZADO AL 90%',
+    'AGENTES DE VOZ CON VAPI',
+    'CACHÉ DE PROMPTS PARA CONTENER COSTES',
   ];
 
   return (
@@ -414,32 +414,32 @@ const Benefits = () => {
     {
       icon: <Target size={28} className="text-[#00F2FF]" />,
       tag: 'PRECISIÓN QUIRÚRGICA',
-      title: 'Operaciones Cero Errores',
-      desc: 'Elimina descuidos y citas duplicadas. Automatiza desde la reserva hasta la sincronización en CRM y facturación con exactitud matemática.',
+      title: 'Menos Errores Manuales',
+      desc: 'Evita descuidos y citas duplicadas automatizando la reserva, la sincronización con tu CRM y la facturación.',
     },
     {
       icon: <TrendingUp size={28} className="text-[#00FF85]" />,
       tag: 'ESCALABILIDAD REAL',
-      title: 'Capacidad 10x Sin Contratar',
-      desc: 'Absorbe picos de demanda y miles de conversaciones simultáneas sin aumentar tu coste de personal ni sobrecargar a tu equipo.',
+      title: 'Más Capacidad Sin Contratar',
+      desc: 'Absorbe picos de demanda y conversaciones simultáneas sin aumentar tu coste de personal ni sobrecargar a tu equipo.',
     },
     {
       icon: <Zap size={28} className="text-[#FFB800]" />,
       tag: 'RECUPERACIÓN DE INGRESOS',
       title: 'Fidelización Automatizada',
-      desc: 'Recordatorios inteligentes por WhatsApp que reducen el absentismo a menos del 3% y reactivan clientes inactivos con ofertas personalizadas.',
+      desc: 'Recordatorios por WhatsApp que reducen las citas olvidadas y reactivan a clientes inactivos con ofertas personalizadas.',
     },
     {
       icon: <Globe size={28} className="text-[#00F2FF]" />,
       tag: 'ARQUITECTURA MODERNA',
       title: 'Velocidad Web Extrema',
-      desc: 'Portales desarrollados con Next.js y React 19 que cargan en menos de 1 segundo, posicionando tu negocio por encima de páginas lentas en Google.',
+      desc: 'Webs hechas con Next.js y React 19, optimizadas para cargar rápido en el móvil, algo que Google tiene en cuenta al posicionarte.',
     },
     {
       icon: <CheckCircle2 size={28} className="text-[#00FF85]" />,
       tag: 'RENTABILIDAD MEDIBLE',
-      title: 'Reducción de Costes del 70%',
-      desc: 'Sustituye horas de gestión manual por flujos automatizados de n8n. Inversión recuperada habitualmente en las primeras 6 semanas.',
+      title: 'Costes Bajo Control',
+      desc: 'Sustituye horas de gestión manual por flujos automatizados de n8n. Antes de empezar calculamos contigo cuánto ahorras y en cuánto tiempo se paga.',
     },
   ];
 
@@ -547,7 +547,7 @@ const Process = () => {
 
                 <div className="pt-6 mt-6 border-t border-white/5 flex items-center gap-2 text-xs font-mono text-zinc-500">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00FF85]" />
-                  Entrega garantizada sin fricción
+                  Revisión contigo en cada fase
                 </div>
               </div>
             </Reveal>
@@ -578,7 +578,7 @@ const TrustBlock = () => {
     {
       icon: <Zap size={28} className="text-[#FFB800]" />,
       title: 'Cero Permanencia',
-      desc: 'El mantenimiento mensual es cancelable en cualquier instante sin penalizaciones. Permaneces con nosotros únicamente si multiplicamos tu margen.',
+      desc: 'El mantenimiento mensual es cancelable en cualquier instante sin penalizaciones. Te quedas solo si te compensa.',
       badge: 'LIBERTAD TOTAL',
       color: '#FFB800',
     },
@@ -605,7 +605,7 @@ const TrustBlock = () => {
               <span className="text-gradient">No Promesas Vacías</span>
             </h2>
             <p className="text-zinc-400 text-base sm:text-lg">
-              Construimos sistemas de software pensados para generar retorno medible desde el primer ciclo de facturación.
+              Construimos sistemas pensados para dar un retorno que se pueda medir, y antes de empezar acordamos contigo cómo lo vamos a medir.
             </p>
           </div>
         </Reveal>
@@ -708,7 +708,7 @@ const AboutUs = () => {
               <div className="precision-glass p-6 rounded-2xl space-y-2">
                 <div className="swiss-tag text-[10px] text-[#00F2FF]">COMPROMISO</div>
                 <h4 className="text-lg font-bold text-white">Soberanía de Datos</h4>
-                <p className="text-xs text-zinc-400">Tus datos e interacciones residen en servidores privados cifrados sin entrenar modelos externos.</p>
+                <p className="text-xs text-zinc-400">Tus datos viven en tu propia base de datos y en nuestro servidor de n8n, aislados del resto de clientes.</p>
               </div>
             </div>
 
@@ -1037,15 +1037,15 @@ const FAQ = () => {
   const faqs = [
     {
       q: '¿Qué diferencia a HecTechAi de otras agencias tradicionales?',
-      a: 'No cobramos por horas de diseño web genérico ni instalamos plantillas WordPress. Construimos ingeniería cinemática en Next.js, conectamos agentes de voz en tiempo real con Vapi y desplegamos enjambres multi-tenant integrados en Supabase que reducen costes operativos de forma inmediata.',
+      a: 'No cobramos por horas de diseño web genérico ni instalamos plantillas WordPress. Construimos ingeniería cinemática en Next.js, conectamos agentes de voz en tiempo real con Vapi y desplegamos enjambres multi-tenant integrados en Supabase pensados para reducir costes operativos.',
     },
     {
       q: '¿Cómo garantizáis la privacidad de las conversaciones y clientes?',
-      a: 'Tus datos nunca se utilizan para reentrenar modelos de IA públicos. Implementamos conexiones directas cifradas de extremo a extremo, con esquemas Supabase aislados mediante Row Level Security (RLS) por cada inquilino empresarial.',
+      a: 'Cada cliente tiene sus datos aislados en Supabase mediante Row Level Security (RLS) y todas las conexiones van cifradas. Antes de empezar te explicamos qué proveedor de IA procesa cada dato y en qué condiciones.',
     },
     {
       q: '¿Qué sucede si un agente de voz o WhatsApp no entiende una consulta?',
-      a: 'Nuestros sistemas integran un protocolo de triaje en 3 niveles. Cuando la IA detecta ambigüedad o una situación compleja, escala inmediatamente la conversación a un operador humano vía Telegram/WhatsApp con el contexto y la transcripción completa.',
+      a: 'Cuando la IA detecta ambigüedad o una situación compleja, escala inmediatamente la conversación a un operador humano vía Telegram/WhatsApp con el contexto y la transcripción completa.',
     },
     {
       q: '¿Cuánto tiempo lleva poner en marcha un agente o portal web?',

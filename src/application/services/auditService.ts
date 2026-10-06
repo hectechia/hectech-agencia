@@ -3,21 +3,32 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export const auditService = {
   async generateTextAudit(business: string, painPoint: string, _email?: string) {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
 
-    const AUDIT_FALLBACK = `🚀 ¡Análisis completado para tu negocio de ${business}!...`;
+    const AUDIT_FALLBACK = `🎯 DIAGNÓSTICO OPERATIVO PARA ${business.toUpperCase()}:
+• Fuga Principal Detectada: El cuello de botella en "${painPoint}" consume horas de gestión manual y hace que algunos clientes se pierdan por el camino.
+• Solución Recomendada HecTechAI: Despliegue de un Agente IA 24/7 integrado con WhatsApp y calendario para automatizar el triaje y confirmación en tiempo real (<3s).
+• Impacto: lo cuantificamos contigo en la auditoría gratuita, con tus datos reales (horas semanales ahorradas y leads recuperados).`;
+
+    if (!apiKey) return AUDIT_FALLBACK;
 
     try {
       const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
       const prompt = `
-Eres el Director Estratégico de HecTechAi. Tu objetivo no es solo informar, sino demostrar que el negocio del cliente está perdiendo oportunidades críticas que solo tú puedes resolver.
+Eres el Director Estratégico y CTO de HecTechAI, agencia de automatización con IA y desarrollo web cinemático en Garraf / Sitges.
+Tu misión es generar un diagnóstico de auditoría quirúrgico, profesional y de alto impacto para un cliente potencial.
 
-Un cliente tiene un negocio de tipo: "${business}"
-Su mayor problema es: "${painPoint}"
+Datos del cliente:
+- Tipo de Negocio: "${business}"
+- Mayor Cuello de Botella Operativo: "${painPoint}"
 
-... (remaining logic from actions.ts)
+Genera una respuesta en texto plano (máximo 120 palabras), estructurada exactamente en estos 3 puntos:
+1. 🎯 DIAGNÓSTICO DE FUGA: Identifica con precisión técnica por qué "${painPoint}" le hace perder clientes o tiempo en su sector.
+2. ⚡ SOLUCIÓN HECTECHAI: Explica qué sistema concreto (Agente WhatsApp 24/7, Recepcionista de Voz Vapi o HecSite Web) resuelve este problema de raíz.
+3. 📈 IMPACTO: Indica qué se mediría (horas semanales ahorradas, leads recuperados) y aclara que la cifra exacta se calcula en la auditoría con sus datos. No inventes porcentajes ni cifras.
+
+Sé conciso, técnico, directo y sin rodeos corporativos ni relleno.
 `;
       const result = await model.generateContent(prompt);
       const response = await result.response;

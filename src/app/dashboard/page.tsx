@@ -260,7 +260,7 @@ function DashboardContent() {
             // Mocking the n8n API call for now as we don't have the exact endpoint for drafting
             // In a real scenario, this would be: await fetch('YOUR_N8N_DRAFT_WEBHOOK', ...)
             await new Promise(resolve => setTimeout(resolve, 2000));
-            setDraftContent(`PROPUESTA ESTRATÉGICA PARA LEAD ID: ${leadId}\n\n1. ANÁLISIS DE DEUDA TECH: El cliente presenta una infraestructura legacy sin automatización de respuesta inmediata.\n2. SOLUCIÓN HECTECH: Implementación de Agente de IA Multimodal para WhatsApp con integración RAG.\n3. IMPACTO ESTIMADO: Reducción del 40% en tiempos de respuesta y aumento del 15% en tasa de conversión.`);
+            setDraftContent(`PROPUESTA ESTRATÉGICA PARA LEAD ID: ${leadId}\n\n1. ANÁLISIS DE DEUDA TECH: El cliente presenta una infraestructura legacy sin automatización de respuesta inmediata.\n2. SOLUCIÓN HECTECH: Implementación de Agente de IA Multimodal para WhatsApp con integración RAG.\n3. IMPACTO ESTIMADO: a cuantificar en la auditoría con datos reales del negocio (horas ahorradas y leads recuperados).`);
         } catch (error) {
             console.error("Error generating draft:", error);
             setDraftContent('Error al generar la propuesta. Inténtalo de nuevo.');

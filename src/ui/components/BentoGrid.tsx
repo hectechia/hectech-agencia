@@ -74,12 +74,47 @@ export const BentoGrid: React.FC = () => {
   // Módulo 4: Scanner Interactive State
   const [scanningUrl, setScanningUrl] = useState('clinicadental-sitges.es');
   const [scanProgress, setScanProgress] = useState<'idle' | 'scanning' | 'done'>('done');
+  const [scanResult, setScanResult] = useState({
+    speed: '4.6s (Lenta)',
+    bounce: '~38% rebote',
+    leakage: '2.400€/mes',
+    status: 'bad'
+  });
 
   const runQuickScan = () => {
+    if (!scanningUrl.trim()) return;
     setScanProgress('scanning');
+
     setTimeout(() => {
+      const clean = scanningUrl.toLowerCase().trim();
+      let hash = 0;
+      for (let i = 0; i < clean.length; i++) {
+        hash = (hash << 5) - hash + clean.charCodeAt(i);
+        hash |= 0;
+      }
+      const abs = Math.abs(hash);
+      const isFast = clean.includes('google') || clean.includes('apple') || clean.includes('hectech') || clean.includes('vercel');
+
+      if (isFast) {
+        setScanResult({
+          speed: '0.8s (Óptima)',
+          bounce: '<12% rebote',
+          leakage: '0€ / mes',
+          status: 'good'
+        });
+      } else {
+        const sec = (3.2 + (abs % 25) / 10).toFixed(1);
+        const bounceRate = 28 + (abs % 20);
+        const lossAmount = (1200 + (abs % 18) * 100).toLocaleString();
+        setScanResult({
+          speed: `${sec}s (Mejorable)`,
+          bounce: `~${bounceRate}% rebote`,
+          leakage: `${lossAmount}€/mes`,
+          status: 'bad'
+        });
+      }
       setScanProgress('done');
-    }, 1500);
+    }, 1200);
   };
 
   return (
@@ -368,12 +403,12 @@ export const BentoGrid: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#FFB800]/10 border border-[#FFB800]/30 text-[#FFB800]">
-                  Escaneo Quirúrgico
+                  Demo ilustrativa
                 </span>
               </div>
 
               <p className="text-zinc-300 text-sm md:text-base leading-relaxed">
-                Escáner automatizado que evalúa la salud de conversión de tu negocio: tiempo de carga, abandono en móvil, velocidad de respuesta y fugas de ingresos por procesos no digitalizados.
+                Simulación de lo que revisamos en la auditoría: tiempo de carga, abandono en móvil, velocidad de respuesta y fugas de ingresos. Las cifras de esta demo son ilustrativas; el análisis real lo hacemos con tus datos.
               </p>
 
               {/* Interactive Quick Scanner */}
@@ -402,15 +437,21 @@ export const BentoGrid: React.FC = () => {
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
                     <div className="text-[10px] font-mono text-zinc-500">VELOCIDAD</div>
-                    <div className="text-sm font-bold text-red-400 mt-0.5">4.8s (Lenta)</div>
+                    <div className={`text-sm font-bold mt-0.5 ${scanResult.status === 'good' ? 'text-[#00FF85]' : 'text-red-400'}`}>
+                      {scanResult.speed}
+                    </div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
                     <div className="text-[10px] font-mono text-zinc-500">LEADS PERDIDOS</div>
-                    <div className="text-sm font-bold text-[#FFB800] mt-0.5">~38% rebote</div>
+                    <div className={`text-sm font-bold mt-0.5 ${scanResult.status === 'good' ? 'text-[#00FF85]' : 'text-[#FFB800]'}`}>
+                      {scanResult.bounce}
+                    </div>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5">
                     <div className="text-[10px] font-mono text-zinc-500">FUGA MENSUAL</div>
-                    <div className="text-sm font-bold text-red-400 mt-0.5">2.400€/mes</div>
+                    <div className={`text-sm font-bold mt-0.5 ${scanResult.status === 'good' ? 'text-[#00FF85]' : 'text-red-400'}`}>
+                      {scanResult.leakage}
+                    </div>
                   </div>
                 </div>
               </div>

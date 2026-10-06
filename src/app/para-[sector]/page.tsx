@@ -277,6 +277,9 @@ export default async function SectorPage({ params }: { params: Promise<{ sector:
                 <div className="text-xs text-zinc-400">
                   {data.roiLabel}
                 </div>
+                <div className="text-[10px] text-zinc-500 mt-1">
+                  Estimación orientativa, no un resultado garantizado: la calculamos con tus datos en la auditoría gratuita.
+                </div>
               </div>
             </div>
 

@@ -38,7 +38,7 @@ const script: Message[] = [
     {
         id: 5,
         type: 'bot',
-        text: 'Exacto. Y ahí es donde pierdes dinero. Los estudios muestran que si no respondes en los primeros 5 minutos, la probabilidad de conversión cae un 80%.',
+        text: 'Exacto. Y ahí es donde pierdes dinero. Cuanto más tardas en contestar, más fácil es que ese cliente acabe reservando con otro.',
     },
     {
         id: 6,
@@ -59,7 +59,7 @@ const script: Message[] = [
     {
         id: 9,
         type: 'bot',
-        text: 'Lo mejor: El tiempo ahorrado y los leads que dejan de perderse suelen cubrir la inversión en los primeros meses. Por eso ofrecemos una auditoría gratuita antes de comprometerte a nada.',
+        text: 'Lo mejor: antes de pagar nada calculamos contigo si el tiempo ahorrado y los leads recuperados compensan la inversión. Por eso la auditoría es gratuita.',
         options: ['¿Cuánto cuesta?', 'Quiero una demo', '¿Funciona para mi sector?'],
     },
     {

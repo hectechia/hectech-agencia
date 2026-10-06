@@ -85,7 +85,7 @@ const servicesData: Record<string, any> = {
       'Búsqueda semántica en PDFs, Words y bases de datos.',
       'Integración con Slack, Teams o portal interno.',
       'Control estricto de accesos (quién ve qué).',
-      'Respuestas siempre basadas 100% en tus propios datos (no alucina).',
+      'Responde a partir de tus propios documentos y, si no encuentra la respuesta, lo dice.',
       'Actualización en tiempo real al subir nuevos documentos.',
     ],
     benefits: [

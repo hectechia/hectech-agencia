@@ -134,7 +134,7 @@ function Problema() {
           {
             icon: <Clock className="text-[#00FF85] mx-auto mb-3" size={28} />,
             title: 'Preguntas fuera de horario',
-            body: 'Más del 40% de las búsquedas de alojamiento ocurren entre las 20h y las 8h. Tu recepción no llega.',
+            body: 'Muchas consultas llegan de noche o en fin de semana, cuando tu recepción no puede contestar.',
           },
           {
             icon: <Globe className="text-[#00F2FF] mx-auto mb-3" size={28} />,
