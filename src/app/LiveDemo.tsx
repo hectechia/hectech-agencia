@@ -148,11 +148,13 @@ export default function LiveDemo() {
     const [isTyping, setIsTyping] = useState(false);
     const [inputText, setInputText] = useState('');
     
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
     const activeScenario = SCENARIOS.find(s => s.id === activeTab) || SCENARIOS[0];
 
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
     };
 
     useEffect(() => {
@@ -294,7 +296,7 @@ export default function LiveDemo() {
                             </div>
                             
                             {/* Messages */}
-                            <div className="flex-1 p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6 scroll-smooth bg-[#0a0a0a]/50">
+                            <div ref={chatContainerRef} className="flex-1 p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6 scroll-smooth bg-[#0a0a0a]/50">
                                 {messages.map((msg) => (
                                     <div key={msg.id} className={`flex items-end gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                                         {msg.role === 'bot' && (
@@ -348,7 +350,6 @@ export default function LiveDemo() {
                                         </div>
                                     </div>
                                 )}
-                                <div ref={messagesEndRef} className="h-1" />
                             </div>
 
                             {/* Quick Options (Suggested Replies) */}
