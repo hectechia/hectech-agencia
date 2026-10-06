@@ -351,7 +351,7 @@ function Precios() {
       </div>
 
       <p className="text-center text-xs text-white/30 mt-8">
-        Todos los precios en EUR · IVA no incluido · Permanencia mínima 3 meses
+        Todos los precios en EUR · IVA no incluido · Cero permanencia (cancela cuando quieras)
       </p>
     </section>
   )
