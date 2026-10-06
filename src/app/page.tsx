@@ -1008,7 +1008,7 @@ const ROICalculator = () => {
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#00FF85]/10 border border-[#00FF85]/20 text-xs text-zinc-300 leading-relaxed">
-                  <strong className="text-[#00FF85]">Conclusión Técnica:</strong> Automatizar estas tareas libera aproximadamente un <strong className="text-white">35% de margen operativo</strong> neto para tu empresa.
+                  <strong className="text-[#00FF85]">Ojo:</strong> Es una estimación con los datos que has puesto. En la <strong className="text-white">auditoría gratuita</strong> la ajustamos con tus números reales.
                 </div>
 
                 <a

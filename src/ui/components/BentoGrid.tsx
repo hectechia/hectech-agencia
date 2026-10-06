@@ -177,7 +177,7 @@ export const BentoGrid: React.FC = () => {
                   </div>
                 </div>
                 <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-[#00FF85]/10 border border-[#00FF85]/30 text-[#00FF85] flex items-center gap-1.5">
-                  <Activity size={12} /> 99 PageSpeed
+                  <Activity size={12} /> SSR Next.js
                 </span>
               </div>
 
@@ -200,23 +200,23 @@ export const BentoGrid: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="bg-white/[0.02] border border-white/5 p-3 rounded-xl">
                     <div className="text-[10px] text-zinc-500 uppercase font-mono">Core Web Vitals</div>
-                    <div className="text-xl font-bold text-white mt-1">0.8s LCP</div>
+                    <div className="text-xl font-bold text-white mt-1">Optimizada</div>
                     <div className="text-[11px] text-[#00FF85] flex items-center gap-1 mt-0.5">
-                      <CheckCircle2 size={11} /> 100% Mobile Ready
+                      <CheckCircle2 size={11} /> Diseño mobile-first
                     </div>
                   </div>
                   <div className="bg-white/[0.02] border border-white/5 p-3 rounded-xl">
                     <div className="text-[10px] text-zinc-500 uppercase font-mono">Motor de Citas</div>
                     <div className="text-xl font-bold text-white mt-1">Instant Booking</div>
                     <div className="text-[11px] text-[#00F2FF] flex items-center gap-1 mt-0.5">
-                      <Calendar size={11} /> 0 Citas Perdidas
+                      <Calendar size={11} /> Recordatorios automáticos
                     </div>
                   </div>
                   <div className="bg-white/[0.02] border border-white/5 p-3 rounded-xl">
-                    <div className="text-[10px] text-zinc-500 uppercase font-mono">Conversión Media</div>
-                    <div className="text-xl font-bold text-white mt-1">+34.2%</div>
+                    <div className="text-[10px] text-zinc-500 uppercase font-mono">Reservas</div>
+                    <div className="text-xl font-bold text-white mt-1">24/7</div>
                     <div className="text-[11px] text-[#00FF85] flex items-center gap-1 mt-0.5">
-                      <Zap size={11} /> vs. webs estándar
+                      <Zap size={11} /> sin llamadas
                     </div>
                   </div>
                 </div>
@@ -269,7 +269,7 @@ export const BentoGrid: React.FC = () => {
               </div>
 
               <p className="text-zinc-300 text-sm md:text-base leading-relaxed">
-                Recepcionistas de voz ultrarrápidos con latencia inferior a 400ms. Atienden llamadas entrantes, responden dudas frecuentes y programan reservas directamente en tu calendario.
+                Recepcionistas de voz que atienden llamadas entrantes, responden dudas frecuentes y programan reservas directamente en tu calendario.
               </p>
 
               {/* Oscillating Audio Wave Visualizer */}
@@ -279,7 +279,7 @@ export const BentoGrid: React.FC = () => {
                     <span className={`w-2 h-2 rounded-full ${isCalling ? 'bg-[#00FF85] animate-ping' : 'bg-zinc-600'}`} />
                     {isCalling ? 'Conexión Telefónica Activa' : 'Canal en Espera'}
                   </span>
-                  <span className="text-[#00F2FF]">Latencia: 320ms</span>
+                  <span className="text-[#00F2FF]">Demo simulada</span>
                 </div>
 
                 {/* Animated Bars */}
@@ -311,7 +311,7 @@ export const BentoGrid: React.FC = () => {
             </div>
 
             <div className="pt-6 border-t border-white/5 mt-6 flex items-center justify-between">
-              <span className="text-xs text-zinc-400 font-mono">0 llamadas perdidas en festivos</span>
+              <span className="text-xs text-zinc-400 font-mono">Atiende también en festivos</span>
               <Link
                 href="/servicios/agentes-ia"
                 className="inline-flex items-center gap-2 text-[#00F2FF] font-bold text-sm hover:gap-3 transition-all"
@@ -365,7 +365,7 @@ export const BentoGrid: React.FC = () => {
                   </div>
                   <div className="bg-[#00FF85]/10 border border-[#00FF85]/20 text-white p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%]">
                     ¡Hola! Sí, Villa Garraf está disponible. Capacidad: 8 huéspedes. Tarifa total: 1.450€. ¿Quieres bloquear la reserva sin comisiones de portal?
-                    <div className="text-[9px] text-[#00FF85] mt-1 text-right">18:42 · Enviado en 680ms ⚡</div>
+                    <div className="text-[9px] text-[#00FF85] mt-1 text-right">18:42 · Enviado ✓</div>
                   </div>
                 </div>
               </div>
